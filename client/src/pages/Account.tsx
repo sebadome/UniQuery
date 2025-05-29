@@ -74,8 +74,8 @@ export default function Account() {
     },
     onError: (error: any) => {
       toast({
-        title: "Update failed",
-        description: error.message || "Failed to update profile",
+        title: "Actualización fallida",
+        description: error.message || "Error al actualizar perfil",
         variant: "destructive",
       });
     },
@@ -87,14 +87,14 @@ export default function Account() {
     onSuccess: () => {
       passwordForm.reset();
       toast({
-        title: "Password changed",
-        description: "Your password has been updated successfully",
+        title: "Contraseña cambiada",
+        description: "Tu contraseña ha sido actualizada exitosamente",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Password change failed",
-        description: error.message || "Failed to change password",
+        title: "Error al cambiar contraseña",
+        description: error.message || "Error al cambiar contraseña",
         variant: "destructive",
       });
     },
@@ -115,17 +115,17 @@ export default function Account() {
     setPreferences(prev => ({ ...prev, [key]: value }));
     // In a real app, you'd save this to the backend
     toast({
-      title: "Preference updated",
-      description: "Your preference has been saved",
+      title: "Preferencia actualizada",
+      description: "Tu preferencia ha sido guardada",
     });
   };
 
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Configuración de Cuenta</h1>
         <p className="text-muted-foreground">
-          Manage your profile and account preferences
+          Administra tu perfil y preferencias de cuenta
         </p>
       </div>
 
@@ -136,17 +136,17 @@ export default function Account() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <User className="h-5 w-5 mr-2" />
-                Profile Information
+                Información del Perfil
               </CardTitle>
               <CardDescription>
-                Update your personal information and email address
+                Actualiza tu información personal y dirección de correo
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={profileForm.handleSubmit(onUpdateProfile)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
+                    <Label htmlFor="name">Nombre Completo</Label>
                     <Input
                       id="name"
                       {...profileForm.register('name')}
@@ -160,7 +160,7 @@ export default function Account() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">Dirección de Correo</Label>
                     <Input
                       id="email"
                       type="email"
@@ -182,10 +182,10 @@ export default function Account() {
                   {updateProfileMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
+                      Actualizando...
                     </>
                   ) : (
-                    'Update Profile'
+                    'Actualizar Perfil'
                   )}
                 </Button>
               </form>
