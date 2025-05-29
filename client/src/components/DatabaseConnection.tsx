@@ -13,13 +13,13 @@ import { useDatabase } from '@/hooks/use-database';
 import { Loader2, CheckCircle, XCircle, Eye, EyeOff, Info } from 'lucide-react';
 
 const dbConnectionSchema = z.object({
-  name: z.string().min(1, 'Connection name is required'),
-  type: z.string().min(1, 'Database type is required'),
-  host: z.string().min(1, 'Host is required'),
-  port: z.number().min(1, 'Port must be a positive number'),
-  database: z.string().min(1, 'Database name is required'),
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
+  name: z.string().min(1, 'El nombre de conexión es requerido'),
+  type: z.string().min(1, 'El tipo de base de datos es requerido'),
+  host: z.string().min(1, 'El host es requerido'),
+  port: z.number().min(1, 'El puerto debe ser un número positivo'),
+  database: z.string().min(1, 'El nombre de la base de datos es requerido'),
+  username: z.string().min(1, 'El nombre de usuario es requerido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
 });
 
 type DbConnectionFormData = z.infer<typeof dbConnectionSchema>;
@@ -109,7 +109,7 @@ export function DatabaseConnection() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-              Currently Connected
+              Actualmente Conectado
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -121,7 +121,7 @@ export function DatabaseConnection() {
                 </p>
               </div>
               <Badge variant="secondary" className="bg-green-50 text-green-700">
-                Active
+                Activa
               </Badge>
             </div>
           </CardContent>
@@ -131,19 +131,19 @@ export function DatabaseConnection() {
       {/* Connection Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Database Connection</CardTitle>
+          <CardTitle>Conexión a Base de Datos</CardTitle>
           <CardDescription>
-            Connect to your database to start querying with natural language
+            Conéctate a tu base de datos para comenzar a consultar con lenguaje natural
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Connection Name</Label>
+                <Label htmlFor="name">Nombre de Conexión</Label>
                 <Input
                   id="name"
-                  placeholder="My Database"
+                  placeholder="Mi Base de Datos"
                   {...register('name')}
                 />
                 {errors.name && (
@@ -152,10 +152,10 @@ export function DatabaseConnection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="type">Database Type</Label>
+                <Label htmlFor="type">Tipo de Base de Datos</Label>
                 <Select onValueChange={handleTypeChange} value={watchedType}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select database type" />
+                    <SelectValue placeholder="Selecciona el tipo de base de datos" />
                   </SelectTrigger>
                   <SelectContent>
                     {dbTypes.map((type) => (
@@ -195,7 +195,7 @@ export function DatabaseConnection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="database">Database Name</Label>
+                <Label htmlFor="database">Nombre de Base de Datos</Label>
                 <Input
                   id="database"
                   placeholder="my_database"
@@ -207,7 +207,7 @@ export function DatabaseConnection() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Nombre de Usuario</Label>
                 <Input
                   id="username"
                   placeholder="postgres"
@@ -219,7 +219,7 @@ export function DatabaseConnection() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="password"
