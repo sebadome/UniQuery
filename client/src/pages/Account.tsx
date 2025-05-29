@@ -196,16 +196,16 @@ export default function Account() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Shield className="h-5 w-5 mr-2" />
-                Change Password
+                Cambiar Contraseña
               </CardTitle>
               <CardDescription>
-                Update your password to keep your account secure
+                Actualiza tu contraseña para mantener tu cuenta segura
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={passwordForm.handleSubmit(onChangePassword)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Label htmlFor="currentPassword">Contraseña Actual</Label>
                   <Input
                     id="currentPassword"
                     type="password"
