@@ -170,10 +170,10 @@ export function ChatInterface() {
   };
 
   const quickSuggestions = [
-    "How many users are in the database?",
-    "Show me the top 10 customers by revenue",
-    "What tables are available?",
-    "Find products with low inventory",
+    "¿Cuántos usuarios hay en la base de datos?",
+    "Muéstrame los 10 mejores clientes por ingresos",
+    "¿Qué tablas están disponibles?",
+    "Encuentra productos con bajo inventario",
   ];
 
   if (!isConnected) {
@@ -184,9 +184,9 @@ export function ChatInterface() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i className="fas fa-database text-red-600 text-xl"></i>
             </div>
-            <h3 className="text-lg font-semibold mb-2">No Database Connected</h3>
+            <h3 className="text-lg font-semibold mb-2">Sin Base de Datos Conectada</h3>
             <p className="text-muted-foreground mb-4">
-              You need to connect to a database before you can start chatting.
+              Necesitas conectarte a una base de datos antes de poder comenzar a chatear.
             </p>
             <Button asChild>
               <a href="/database">Connect Database</a>
@@ -204,7 +204,7 @@ export function ChatInterface() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-            <span className="font-medium">Connected to: {activeConnection?.database}</span>
+            <span className="font-medium">Conectado a: {activeConnection?.database}</span>
           </div>
           <Button
             variant="ghost"
@@ -213,7 +213,7 @@ export function ChatInterface() {
             className="text-muted-foreground"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Clear Chat
+            Limpiar Chat
           </Button>
         </div>
       </div>
@@ -226,9 +226,9 @@ export function ChatInterface() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Bot className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Start a Conversation</h3>
+              <h3 className="text-lg font-semibold mb-2">Inicia una Conversación</h3>
               <p className="text-muted-foreground mb-6">
-                Ask questions about your database in plain English. I'll convert them to SQL and get your answers!
+                Haz preguntas sobre tu base de datos en español. ¡Las convertiré a SQL y obtendré tus respuestas!
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
                 {quickSuggestions.map((suggestion, index) => (

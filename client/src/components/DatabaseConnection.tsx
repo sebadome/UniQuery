@@ -252,9 +252,9 @@ export function DatabaseConnection() {
                   {testStatus === 'success' && <CheckCircle className="h-4 w-4 text-green-600 mr-2" />}
                   {testStatus === 'error' && <XCircle className="h-4 w-4 text-red-600 mr-2" />}
                   <AlertDescription>
-                    {testStatus === 'testing' && 'Testing connection...'}
-                    {testStatus === 'success' && 'Connection successful! Ready to connect.'}
-                    {testStatus === 'error' && (testError || 'Connection failed. Please check your credentials.')}
+                    {testStatus === 'testing' && 'Probando conexión...'}
+                    {testStatus === 'success' && 'Conexión exitosa! Listo para conectar.'}
+                    {testStatus === 'error' && (testError || 'Conexión falló. Por favor verifica tus credenciales.')}
                   </AlertDescription>
                 </div>
               </Alert>
@@ -272,10 +272,10 @@ export function DatabaseConnection() {
                 {testStatus === 'testing' ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Testing...
+                    Probando...
                   </>
                 ) : (
-                  'Test Connection'
+                  'Probar Conexión'
                 )}
               </Button>
 
@@ -287,10 +287,10 @@ export function DatabaseConnection() {
                 {isConnecting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting...
+                    Conectando...
                   </>
                 ) : (
-                  'Save & Connect'
+                  'Guardar y Conectar'
                 )}
               </Button>
             </div>
@@ -303,26 +303,26 @@ export function DatabaseConnection() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Info className="h-5 w-5 mr-2" />
-            Connection Tips
+            Consejos de Conexión
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start">
               <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              Ensure your database server is running and accessible
+              Asegúrate de que tu servidor de base de datos esté funcionando y sea accesible
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              Check firewall settings allow connections on the specified port
+              Verifica que la configuración del firewall permita conexiones en el puerto especificado
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              Verify database user has necessary read permissions
+              Confirma que el usuario de la base de datos tenga los permisos de lectura necesarios
             </li>
             <li className="flex items-start">
               <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              Connection details are stored securely and only in session memory
+              Los detalles de conexión se almacenan de forma segura y solo en la memoria de sesión
             </li>
           </ul>
         </CardContent>
