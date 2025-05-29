@@ -37,10 +37,10 @@ export default function Dashboard() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {user?.name?.split(' ')[0]}!
+          ¡Bienvenido de vuelta, {user?.name?.split(' ')[0]}!
         </h1>
         <p className="text-muted-foreground">
-          Query your databases using natural language
+          Consulta tus bases de datos usando lenguaje natural
         </p>
       </div>
 
@@ -48,7 +48,7 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Database Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Estado de la Base de Datos</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -56,12 +56,12 @@ export default function Dashboard() {
               {isConnected ? (
                 <>
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span className="text-green-700">Connected</span>
+                  <span className="text-green-700">Conectado</span>
                 </>
               ) : (
                 <>
                   <XCircle className="h-4 w-4 text-red-500" />
-                  <span className="text-red-700">Not Connected</span>
+                  <span className="text-red-700">No Conectado</span>
                 </>
               )}
             </div>
@@ -75,13 +75,13 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Queries</CardTitle>
+            <CardTitle className="text-sm font-medium">Total de Consultas</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalQueries}</div>
             <p className="text-xs text-muted-foreground">
-              All time queries
+              Consultas de todos los tiempos
             </p>
           </CardContent>
         </Card>

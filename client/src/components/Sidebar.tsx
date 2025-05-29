@@ -21,11 +21,11 @@ export function Sidebar() {
   const { isConnected, activeConnection } = useDatabase();
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: Home },
-    { name: 'Database', href: '/database', icon: Database },
+    { name: 'Panel Principal', href: '/', icon: Home },
+    { name: 'Base de Datos', href: '/database', icon: Database },
     { name: 'Chat', href: '/chat', icon: MessageSquare },
-    { name: 'Account', href: '/account', icon: Settings },
-    { name: 'Help', href: '/help', icon: HelpCircle },
+    { name: 'Cuenta', href: '/account', icon: Settings },
+    { name: 'Ayuda', href: '/help', icon: HelpCircle },
   ];
 
   const isActive = (href: string) => {
@@ -75,13 +75,13 @@ export function Sidebar() {
             <>
               <Wifi className="h-4 w-4 text-green-500 mr-2" />
               <span className="text-green-700">
-                Connected to {activeConnection?.database}
+                Conectado a {activeConnection?.database}
               </span>
             </>
           ) : (
             <>
               <WifiOff className="h-4 w-4 text-red-500 mr-2" />
-              <span className="text-red-700">Not connected</span>
+              <span className="text-red-700">No conectado</span>
             </>
           )}
         </div>
@@ -116,7 +116,7 @@ export function Sidebar() {
           onClick={handleLogout}
         >
           <LogOut className="mr-3 h-4 w-4" />
-          Sign Out
+          Cerrar Sesión
         </Button>
       </div>
     </div>
