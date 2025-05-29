@@ -10,8 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username or email is required'),
-  password: z.string().min(1, 'Password is required'),
+  username: z.string().min(1, 'El nombre de usuario o email es requerido'),
+  password: z.string().min(1, 'La contraseña es requerida'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -38,10 +38,10 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
       const success = await onLogin(data.username, data.password);
       
       if (!success) {
-        setError('Invalid credentials. Please check your username and password.');
+        setError('Credenciales inválidas. Por favor verifica tu usuario y contraseña.');
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      setError('Ocurrió un error durante el inicio de sesión. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -54,24 +54,24 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
           <i className="fas fa-database text-white text-2xl"></i>
         </div>
         <h1 className="text-3xl font-bold text-slate-800 mb-2">DataQuery Pro</h1>
-        <p className="text-slate-600">Natural language database interface</p>
+        <p className="text-slate-600">Interfaz de base de datos en lenguaje natural</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Sign In</CardTitle>
+          <CardTitle>Iniciar Sesión</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account
+            Ingresa tus credenciales para acceder a tu cuenta
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username or Email</Label>
+              <Label htmlFor="username">Usuario o Email</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter your username or email"
+                placeholder="Ingresa tu usuario o email"
                 {...register('username')}
                 disabled={isLoading}
               />
@@ -81,12 +81,12 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder="Ingresa tu contraseña"
                   {...register('password')}
                   disabled={isLoading}
                 />
@@ -114,10 +114,10 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing In...
+                  Iniciando sesión...
                 </>
               ) : (
-                'Sign In'
+                'Iniciar Sesión'
               )}
             </Button>
 
@@ -128,7 +128,7 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
                 onClick={onShowRegister}
                 disabled={isLoading}
               >
-                Forgot your password?
+                ¿Olvidaste tu contraseña?
               </button>
             </div>
           </form>
@@ -137,13 +137,13 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
 
       <div className="text-center mt-6">
         <p className="text-slate-600">
-          Don't have an account?{' '}
+          ¿No tienes una cuenta?{' '}
           <button
             className="text-primary hover:text-primary/80 font-medium"
             onClick={onShowRegister}
             disabled={isLoading}
           >
-            Sign up
+            Registrarse
           </button>
         </p>
       </div>
