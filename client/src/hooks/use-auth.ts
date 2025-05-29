@@ -52,15 +52,15 @@ export function useAuth() {
       });
 
       toast({
-        title: "Welcome back!",
-        description: `Logged in as ${response.user.name}`,
+        title: "¡Bienvenido de vuelta!",
+        description: `Sesión iniciada como ${response.user.name}`,
       });
 
       return true;
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Invalid credentials",
+        title: "Error de inicio de sesión",
+        description: error.message || "Credenciales inválidas",
         variant: "destructive",
       });
       return false;
@@ -87,15 +87,15 @@ export function useAuth() {
       });
 
       toast({
-        title: "Account created!",
-        description: `Welcome, ${response.user.name}!`,
+        title: "¡Cuenta creada!",
+        description: `¡Bienvenido, ${response.user.name}!`,
       });
 
       return true;
     } catch (error: any) {
       toast({
-        title: "Registration failed",
-        description: error.message || "Failed to create account",
+        title: "Error de registro",
+        description: error.message || "Error al crear la cuenta",
         variant: "destructive",
       });
       return false;
@@ -116,8 +116,8 @@ export function useAuth() {
       });
 
       toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente",
       });
     }
   };

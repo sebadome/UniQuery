@@ -1,14 +1,20 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { LoginForm } from '@/components/LoginForm';
 import { RegisterForm } from '@/components/RegisterForm';
 
 export default function Login() {
   const [showRegister, setShowRegister] = useState(false);
+  const [, setLocation] = useLocation();
   const { login, register } = useAuth();
 
   const handleLogin = async (username: string, password: string) => {
-    return await login(username, password);
+    const success = await login(username, password);
+    if (success) {
+      setLocation('/');
+    }
+    return success;
   };
 
   const handleRegister = async (userData: {
@@ -18,7 +24,11 @@ export default function Login() {
     confirmPassword: string;
     name: string;
   }) => {
-    return await register(userData);
+    const success = await register(userData);
+    if (success) {
+      setLocation('/');
+    }
+    return success;
   };
 
   return (
