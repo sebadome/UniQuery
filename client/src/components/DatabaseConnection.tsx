@@ -1,0 +1,332 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { useDatabase } from '@/hooks/use-database';
+import { Loader2, CheckCircle, XCircle, Eye, EyeOff, Info } from 'lucide-react';
+
+const dbConnectionSchema = z.object({
+  name: z.string().min(1, 'Connection name is required'),
+  type: z.string().min(1, 'Database type is required'),
+  host: z.string().min(1, 'Host is required'),
+  port: z.number().min(1, 'Port must be a positive number'),
+  database: z.string().min(1, 'Database name is required'),
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type DbConnectionFormData = z.infer<typeof dbConnectionSchema>;
+
+export function DatabaseConnection() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [testError, setTestError] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  
+  const { testConnection, connect, isConnected, activeConnection } = useDatabase();
+
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DbConnectionFormData>({
+    resolver: zodResolver(dbConnectionSchema),
+    defaultValues: {
+      name: '',
+      type: '',
+      host: '',
+      port: 5432,
+      database: '',
+      username: '',
+      password: '',
+    },
+  });
+
+  const watchedType = watch('type');
+
+  // Set default ports based on database type
+  const handleTypeChange = (type: string) => {
+    setValue('type', type);
+    const defaultPorts: Record<string, number> = {
+      postgresql: 5432,
+      mysql: 3306,
+      sqlserver: 1433,
+      oracle: 1521,
+      sqlite: 0,
+    };
+    if (defaultPorts[type]) {
+      setValue('port', defaultPorts[type]);
+    }
+  };
+
+  const handleTestConnection = async (data: DbConnectionFormData) => {
+    setTestStatus('testing');
+    setTestError(null);
+    
+    const success = await testConnection(data);
+    
+    if (success) {
+      setTestStatus('success');
+    } else {
+      setTestStatus('error');
+      setTestError('Connection test failed');
+    }
+  };
+
+  const onSubmit = async (data: DbConnectionFormData) => {
+    // Test connection first if not already tested
+    if (testStatus !== 'success') {
+      await handleTestConnection(data);
+      return;
+    }
+
+    setIsConnecting(true);
+    const success = await connect(data);
+    setIsConnecting(false);
+
+    if (success) {
+      // Reset form on successful connection
+      setTestStatus('idle');
+    }
+  };
+
+  const dbTypes = [
+    { value: 'postgresql', label: 'PostgreSQL' },
+    { value: 'mysql', label: 'MySQL' },
+    { value: 'sqlserver', label: 'SQL Server' },
+    { value: 'oracle', label: 'Oracle' },
+    { value: 'sqlite', label: 'SQLite' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Current Connection Status */}
+      {isConnected && activeConnection && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              Currently Connected
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">{activeConnection.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {activeConnection.type} • {activeConnection.database}
+                </p>
+              </div>
+              <Badge variant="secondary" className="bg-green-50 text-green-700">
+                Active
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Connection Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Database Connection</CardTitle>
+          <CardDescription>
+            Connect to your database to start querying with natural language
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Connection Name</Label>
+                <Input
+                  id="name"
+                  placeholder="My Database"
+                  {...register('name')}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">Database Type</Label>
+                <Select onValueChange={handleTypeChange} value={watchedType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select database type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dbTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.type && (
+                  <p className="text-sm text-destructive">{errors.type.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="host">Host</Label>
+                <Input
+                  id="host"
+                  placeholder="localhost"
+                  {...register('host')}
+                />
+                {errors.host && (
+                  <p className="text-sm text-destructive">{errors.host.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="port">Port</Label>
+                <Input
+                  id="port"
+                  type="number"
+                  {...register('port', { valueAsNumber: true })}
+                />
+                {errors.port && (
+                  <p className="text-sm text-destructive">{errors.port.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="database">Database Name</Label>
+                <Input
+                  id="database"
+                  placeholder="my_database"
+                  {...register('database')}
+                />
+                {errors.database && (
+                  <p className="text-sm text-destructive">{errors.database.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  placeholder="postgres"
+                  {...register('username')}
+                />
+                {errors.username && (
+                  <p className="text-sm text-destructive">{errors.username.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...register('password')}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Connection Status */}
+            {testStatus !== 'idle' && (
+              <Alert className={
+                testStatus === 'success' ? 'border-green-200 bg-green-50' :
+                testStatus === 'error' ? 'border-red-200 bg-red-50' : ''
+              }>
+                <div className="flex items-center">
+                  {testStatus === 'testing' && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  {testStatus === 'success' && <CheckCircle className="h-4 w-4 text-green-600 mr-2" />}
+                  {testStatus === 'error' && <XCircle className="h-4 w-4 text-red-600 mr-2" />}
+                  <AlertDescription>
+                    {testStatus === 'testing' && 'Testing connection...'}
+                    {testStatus === 'success' && 'Connection successful! Ready to connect.'}
+                    {testStatus === 'error' && (testError || 'Connection failed. Please check your credentials.')}
+                  </AlertDescription>
+                </div>
+              </Alert>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={handleSubmit(handleTestConnection)}
+                disabled={testStatus === 'testing'}
+              >
+                {testStatus === 'testing' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  'Test Connection'
+                )}
+              </Button>
+
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={testStatus !== 'success' || isConnecting}
+              >
+                {isConnecting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  'Save & Connect'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Connection Tips */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Info className="h-5 w-5 mr-2" />
+            Connection Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-start">
+              <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              Ensure your database server is running and accessible
+            </li>
+            <li className="flex items-start">
+              <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              Check firewall settings allow connections on the specified port
+            </li>
+            <li className="flex items-start">
+              <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              Verify database user has necessary read permissions
+            </li>
+            <li className="flex items-start">
+              <span className="w-2 h-2 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+              Connection details are stored securely and only in session memory
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
