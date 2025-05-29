@@ -27,102 +27,102 @@ export default function Help() {
 
   const exampleQueries = [
     {
-      category: "Basic Queries",
+      category: "Consultas Básicas",
       icon: Database,
       color: "bg-blue-100 text-blue-600",
       examples: [
         {
-          title: "Count Records",
-          query: "How many users are in the database?",
-          description: "Get the total count of records in a table",
-          tags: ["Count", "Basic"]
+          title: "Contar Registros",
+          query: "¿Cuántos usuarios hay en la base de datos?",
+          description: "Obtener el total de registros en una tabla",
+          tags: ["Contar", "Básico"]
         },
         {
-          title: "List Tables",
-          query: "What tables are available in my database?",
-          description: "Show all tables in the connected database",
-          tags: ["Schema", "Tables"]
+          title: "Listar Tablas",
+          query: "¿Qué tablas están disponibles en mi base de datos?",
+          description: "Mostrar todas las tablas en la base de datos conectada",
+          tags: ["Esquema", "Tablas"]
         },
         {
-          title: "Show Columns",
-          query: "What columns are in the users table?",
-          description: "Display the structure of a specific table",
-          tags: ["Schema", "Columns"]
+          title: "Mostrar Columnas",
+          query: "¿Qué columnas tiene la tabla usuarios?",
+          description: "Mostrar la estructura de una tabla específica",
+          tags: ["Esquema", "Columnas"]
         }
       ]
     },
     {
-      category: "Customer Analysis",
+      category: "Análisis de Clientes",
       icon: Users,
       color: "bg-green-100 text-green-600",
       examples: [
         {
-          title: "Top Customers",
-          query: "Show me the top 10 customers by total purchase amount",
-          description: "Find your highest value customers",
-          tags: ["Customers", "Revenue"]
+          title: "Mejores Clientes",
+          query: "Muéstrame los 10 mejores clientes por monto total de compra",
+          description: "Encuentra tus clientes de mayor valor",
+          tags: ["Clientes", "Ingresos"]
         },
         {
-          title: "Customer Retention",
-          query: "Which customers haven't made a purchase in the last 6 months?",
-          description: "Identify customers at risk of churning",
-          tags: ["Customers", "Retention"]
+          title: "Retención de Clientes",
+          query: "¿Qué clientes no han hecho una compra en los últimos 6 meses?",
+          description: "Identificar clientes en riesgo de abandono",
+          tags: ["Clientes", "Retención"]
         },
         {
-          title: "New Customers",
-          query: "How many new customers did we acquire this month?",
-          description: "Track customer acquisition metrics",
-          tags: ["Customers", "Growth"]
+          title: "Clientes Nuevos",
+          query: "¿Cuántos clientes nuevos adquirimos este mes?",
+          description: "Rastrear métricas de adquisición de clientes",
+          tags: ["Clientes", "Crecimiento"]
         }
       ]
     },
     {
-      category: "Sales Analytics",
+      category: "Análisis de Ventas",
       icon: TrendingUp,
       color: "bg-purple-100 text-purple-600",
       examples: [
         {
-          title: "Sales Trends",
-          query: "Show me monthly sales trends for the last year",
-          description: "Analyze sales performance over time",
-          tags: ["Sales", "Trends"]
+          title: "Tendencias de Ventas",
+          query: "Muéstrame las tendencias de ventas mensuales del último año",
+          description: "Analizar el rendimiento de ventas a lo largo del tiempo",
+          tags: ["Ventas", "Tendencias"]
         },
         {
-          title: "Product Performance",
-          query: "What are our best-selling products this quarter?",
-          description: "Identify top performing products",
-          tags: ["Products", "Sales"]
+          title: "Rendimiento de Productos",
+          query: "¿Cuáles son nuestros productos más vendidos este trimestre?",
+          description: "Identificar productos de mejor rendimiento",
+          tags: ["Productos", "Ventas"]
         },
         {
-          title: "Revenue by Region",
-          query: "Compare revenue by region for this year",
-          description: "Geographic sales analysis",
-          tags: ["Revenue", "Geography"]
+          title: "Ingresos por Región",
+          query: "Compara los ingresos por región para este año",
+          description: "Análisis de ventas geográfico",
+          tags: ["Ingresos", "Geografía"]
         }
       ]
     },
     {
-      category: "Inventory Management",
+      category: "Gestión de Inventario",
       icon: Settings,
       color: "bg-orange-100 text-orange-600",
       examples: [
         {
-          title: "Low Stock Alert",
-          query: "Show me products with less than 10 units in stock",
-          description: "Identify products that need restocking",
-          tags: ["Inventory", "Stock"]
+          title: "Alerta de Stock Bajo",
+          query: "Muéstrame productos con menos de 10 unidades en stock",
+          description: "Identificar productos que necesitan reabastecimiento",
+          tags: ["Inventario", "Stock"]
         },
         {
-          title: "Inventory Value",
-          query: "What's the total value of our current inventory?",
-          description: "Calculate total inventory worth",
-          tags: ["Inventory", "Value"]
+          title: "Valor de Inventario",
+          query: "¿Cuál es el valor total de nuestro inventario actual?",
+          description: "Calcular el valor total del inventario",
+          tags: ["Inventario", "Valor"]
         },
         {
-          title: "Fast Moving Items",
-          query: "Which products sell the fastest?",
-          description: "Identify products with high turnover",
-          tags: ["Inventory", "Turnover"]
+          title: "Productos de Rápido Movimiento",
+          query: "¿Qué productos se venden más rápido?",
+          description: "Identificar productos con alta rotación",
+          tags: ["Inventario", "Rotación"]
         }
       ]
     }
@@ -220,9 +220,9 @@ export default function Help() {
   return (
     <div className="space-y-8 max-w-6xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Help & Examples</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Ayuda y Ejemplos</h1>
         <p className="text-muted-foreground">
-          Learn how to make the most of DataQuery Pro with examples and guides
+          Aprende cómo aprovechar al máximo DataQuery Pro con ejemplos y guías
         </p>
       </div>
 
@@ -231,14 +231,14 @@ export default function Help() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Search className="h-5 w-5 mr-2" />
-            Search Help Topics
+            Buscar Temas de Ayuda
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search for help topics, examples, or FAQs..."
+              placeholder="Buscar temas de ayuda, ejemplos o preguntas frecuentes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -251,7 +251,7 @@ export default function Help() {
       <div className="space-y-6">
         <div className="flex items-center">
           <Lightbulb className="h-5 w-5 mr-2" />
-          <h2 className="text-2xl font-bold">Example Queries</h2>
+          <h2 className="text-2xl font-bold">Consultas de Ejemplo</h2>
         </div>
         
         <div className="grid gap-6 lg:grid-cols-2">
@@ -267,7 +267,7 @@ export default function Help() {
                     {category.category}
                   </CardTitle>
                   <CardDescription>
-                    Common queries for {category.category.toLowerCase()}
+                    Consultas comunes para {category.category.toLowerCase()}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -298,7 +298,7 @@ export default function Help() {
                             className="ml-4"
                           >
                             <Play className="h-3 w-3 mr-1" />
-                            Try
+                            Probar
                           </Button>
                         </div>
                       </div>
