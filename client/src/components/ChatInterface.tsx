@@ -73,8 +73,8 @@ export function ChatInterface() {
     },
     onError: (error: any) => {
       toast({
-        title: "Query failed",
-        description: error.message || "Failed to process your query",
+        title: "Consulta falló",
+        description: error.message || "Error al procesar tu consulta",
         variant: "destructive",
       });
     },
@@ -189,7 +189,7 @@ export function ChatInterface() {
               Necesitas conectarte a una base de datos antes de poder comenzar a chatear.
             </p>
             <Button asChild>
-              <a href="/database">Connect Database</a>
+              <a href="/database">Conectar Base de Datos</a>
             </Button>
           </CardContent>
         </Card>
