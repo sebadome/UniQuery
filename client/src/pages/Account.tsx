@@ -18,16 +18,16 @@ import { Loader2, User, Shield, Bell, Download, AlertTriangle } from 'lucide-rea
 
 // Form schemas
 const profileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Por favor ingresa un email válido'),
 });
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
+  newPassword: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
 });
 
@@ -68,8 +68,8 @@ export default function Account() {
     onSuccess: (data) => {
       updateUser(data.user);
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully",
+        title: "Perfil actualizado",
+        description: "Tu perfil ha sido actualizado exitosamente",
       });
     },
     onError: (error: any) => {

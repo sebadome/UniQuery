@@ -88,20 +88,20 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">Tasa de Éxito</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{successRate}%</div>
             <p className="text-xs text-muted-foreground">
-              {successfulQueries} of {totalQueries} successful
+              {successfulQueries} de {totalQueries} exitosas
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
+            <CardTitle className="text-sm font-medium">Tiempo Promedio de Respuesta</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -111,7 +111,7 @@ export default function Dashboard() {
                 : 0}ms
             </div>
             <p className="text-xs text-muted-foreground">
-              Average execution time
+              Tiempo promedio de ejecución
             </p>
           </CardContent>
         </Card>
@@ -122,9 +122,9 @@ export default function Dashboard() {
         {/* Connection Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Database Connection</CardTitle>
+            <CardTitle>Conexión a Base de Datos</CardTitle>
             <CardDescription>
-              {isConnected ? 'Manage your active connection' : 'Connect to start querying'}
+              {isConnected ? 'Administra tu conexión activa' : 'Conéctate para comenzar a consultar'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -141,11 +141,11 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    Active
+                    Activa
                   </Badge>
                 </div>
                 <Button asChild className="w-full">
-                  <Link href="/chat">Start Querying</Link>
+                  <Link href="/chat">Comenzar a Consultar</Link>
                 </Button>
               </div>
             ) : (
@@ -153,12 +153,12 @@ export default function Dashboard() {
                 <div className="flex items-center p-4 bg-red-50 border border-red-200 rounded-lg">
                   <XCircle className="h-5 w-5 text-red-500 mr-3" />
                   <div>
-                    <p className="font-medium text-red-900">No database connected</p>
-                    <p className="text-sm text-red-700">Connect to your database to start querying</p>
+                    <p className="font-medium text-red-900">No hay base de datos conectada</p>
+                    <p className="text-sm text-red-700">Conéctate a tu base de datos para comenzar a consultar</p>
                   </div>
                 </div>
                 <Button asChild className="w-full">
-                  <Link href="/database">Connect Database</Link>
+                  <Link href="/database">Conectar Base de Datos</Link>
                 </Button>
               </div>
             )}
@@ -168,9 +168,9 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Queries</CardTitle>
+            <CardTitle>Consultas Recientes</CardTitle>
             <CardDescription>
-              Your latest database interactions
+              Tus últimas interacciones con la base de datos
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -199,19 +199,19 @@ export default function Dashboard() {
                   </div>
                 ))}
                 <Button variant="outline" className="w-full" asChild>
-                  <Link href="/chat">View All Queries</Link>
+                  <Link href="/chat">Ver Todas las Consultas</Link>
                 </Button>
               </div>
             ) : (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-500 mb-4">No queries yet</p>
+                <p className="text-slate-500 mb-4">Aún no hay consultas</p>
                 {isConnected ? (
                   <Button asChild>
-                    <Link href="/chat">Start Your First Query</Link>
+                    <Link href="/chat">Realizar Primera Consulta</Link>
                   </Button>
                 ) : (
-                  <p className="text-sm text-slate-400">Connect to a database first</p>
+                  <p className="text-sm text-slate-400">Primero conecta a una base de datos</p>
                 )}
               </div>
             )}
@@ -223,9 +223,9 @@ export default function Dashboard() {
       {!isConnected && (
         <Card>
           <CardHeader>
-            <CardTitle>Getting Started</CardTitle>
+            <CardTitle>Comenzar</CardTitle>
             <CardDescription>
-              Follow these steps to start querying your database
+              Sigue estos pasos para comenzar a consultar tu base de datos
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -234,12 +234,12 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Database className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-medium mb-2">1. Connect Database</h3>
+                <h3 className="font-medium mb-2">1. Conectar Base de Datos</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Add your database connection details
+                  Agrega los detalles de conexión de tu base de datos
                 </p>
                 <Button size="sm" asChild>
-                  <Link href="/database">Connect</Link>
+                  <Link href="/database">Conectar</Link>
                 </Button>
               </div>
 
@@ -247,9 +247,9 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <MessageSquare className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="font-medium mb-2">2. Start Chatting</h3>
+                <h3 className="font-medium mb-2">2. Comenzar a Chatear</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Ask questions in natural language
+                  Haz preguntas en lenguaje natural
                 </p>
                 <Button size="sm" variant="outline" disabled>
                   Chat
@@ -260,12 +260,12 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Activity className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="font-medium mb-2">3. Get Insights</h3>
+                <h3 className="font-medium mb-2">3. Obtener Información</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Receive data insights and SQL queries
+                  Recibe información de datos y consultas SQL
                 </p>
                 <Button size="sm" variant="outline" disabled>
-                  Analyze
+                  Analizar
                 </Button>
               </div>
             </div>
