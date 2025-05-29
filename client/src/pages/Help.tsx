@@ -131,43 +131,43 @@ export default function Help() {
   const faqItems = [
     {
       id: "connection",
-      question: "How do I connect to my database?",
-      answer: "Navigate to the Database Connection page and enter your database credentials. We support PostgreSQL, MySQL, SQL Server, Oracle, and SQLite. Make sure your database is accessible from the internet and you have the correct connection details including host, port, username, and password."
+      question: "¿Cómo me conecto a mi base de datos?",
+      answer: "Navega a la página de Conexión de Base de Datos e ingresa las credenciales de tu base de datos. Soportamos PostgreSQL, MySQL, SQL Server, Oracle y SQLite. Asegúrate de que tu base de datos sea accesible desde internet y que tengas los detalles de conexión correctos incluyendo host, puerto, nombre de usuario y contraseña."
     },
     {
       id: "security",
-      question: "Is my database information secure?",
-      answer: "Yes! All connection details are encrypted and never stored permanently on our servers. Your database credentials are only kept in memory during your session and are automatically cleared when you log out or close your browser."
+      question: "¿Está segura la información de mi base de datos?",
+      answer: "¡Sí! Todos los detalles de conexión están encriptados y nunca se almacenan permanentemente en nuestros servidores. Las credenciales de tu base de datos solo se mantienen en memoria durante tu sesión y se eliminan automáticamente cuando cierras sesión o cierras tu navegador."
     },
     {
       id: "query-types",
-      question: "What types of queries can I ask?",
-      answer: "You can ask questions in natural language about your data. Try queries like 'Show me sales trends', 'List top customers', 'Find products with low inventory', or 'Compare performance by region'. The AI will convert your questions into SQL queries and provide meaningful results."
+      question: "¿Qué tipos de consultas puedo hacer?",
+      answer: "Puedes hacer preguntas en lenguaje natural sobre tus datos. Prueba consultas como 'Muéstrame tendencias de ventas', 'Lista los mejores clientes', 'Encuentra productos con inventario bajo', o 'Compara rendimiento por región'. La IA convertirá tus preguntas en consultas SQL y proporcionará resultados significativos."
     },
     {
       id: "sql-access",
-      question: "Can I see the generated SQL queries?",
-      answer: "Absolutely! Click the 'View SQL' button next to any response to see the actual SQL query that was generated and executed. This helps you understand how your natural language question was translated into SQL and allows you to learn SQL patterns."
+      question: "¿Puedo ver las consultas SQL generadas?",
+      answer: "¡Por supuesto! Haz clic en el botón 'Ver SQL' junto a cualquier respuesta para ver la consulta SQL real que fue generada y ejecutada. Esto te ayuda a entender cómo tu pregunta en lenguaje natural fue traducida a SQL y te permite aprender patrones de SQL."
     },
     {
       id: "accuracy",
-      question: "How accurate are the natural language interpretations?",
-      answer: "Our AI is designed to understand complex database queries and provide accurate results. However, for complex queries, we recommend reviewing the generated SQL to ensure it matches your intent. You can always provide feedback to help improve accuracy."
+      question: "¿Qué tan precisas son las interpretaciones en lenguaje natural?",
+      answer: "Nuestra IA está diseñada para entender consultas complejas de base de datos y proporcionar resultados precisos. Sin embargo, para consultas complejas, recomendamos revisar el SQL generado para asegurar que coincida con tu intención. Siempre puedes proporcionar comentarios para ayudar a mejorar la precisión."
     },
     {
       id: "permissions",
-      question: "What database permissions do I need?",
-      answer: "At minimum, your database user needs SELECT permissions on the tables you want to query. For schema exploration (viewing table structures), additional metadata permissions may be helpful. We recommend using a read-only user for security."
+      question: "¿Qué permisos de base de datos necesito?",
+      answer: "Como mínimo, tu usuario de base de datos necesita permisos SELECT en las tablas que quieres consultar. Para exploración de esquemas (ver estructuras de tablas), permisos adicionales de metadatos pueden ser útiles. Recomendamos usar un usuario de solo lectura por seguridad."
     },
     {
       id: "multiple-databases",
-      question: "Can I connect to multiple databases?",
-      answer: "Currently, you can connect to one database per session. To switch databases, disconnect from the current one and connect to another. We're working on multi-database support for future releases."
+      question: "¿Puedo conectarme a múltiples bases de datos?",
+      answer: "Actualmente, puedes conectarte a una base de datos por sesión. Para cambiar bases de datos, desconéctate de la actual y conéctate a otra. Estamos trabajando en soporte para múltiples bases de datos para futuras versiones."
     },
     {
       id: "data-modification",
-      question: "Can I modify data through natural language queries?",
-      answer: "For security reasons, DataQuery Pro focuses on read-only operations (SELECT queries). INSERT, UPDATE, and DELETE operations are not supported through the natural language interface."
+      question: "¿Puedo modificar datos a través de consultas en lenguaje natural?",
+      answer: "Por razones de seguridad, DataQuery Pro se enfoca en operaciones de solo lectura (consultas SELECT). Las operaciones INSERT, UPDATE y DELETE no están soportadas a través de la interfaz de lenguaje natural."
     }
   ];
 
@@ -199,10 +199,10 @@ export default function Help() {
       defaultPort: 1433,
       icon: Database,
       tips: [
-        "Default port is 1433",
-        "Enable TCP/IP in SQL Server Configuration",
-        "Configure Windows Firewall",
-        "Use SQL Server Authentication"
+        "El puerto por defecto es 1433",
+        "Habilita TCP/IP en Configuración de SQL Server",
+        "Configura el Firewall de Windows",
+        "Usa Autenticación de SQL Server"
       ]
     }
   ];
