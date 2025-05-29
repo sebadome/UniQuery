@@ -177,10 +177,10 @@ export default function Help() {
       defaultPort: 5432,
       icon: Database,
       tips: [
-        "Default port is 5432",
-        "Use 'localhost' for local databases",
-        "Ensure pg_hba.conf allows connections",
-        "Check firewall settings for remote connections"
+        "El puerto por defecto es 5432",
+        "Usa 'localhost' para bases de datos locales",
+        "Asegúrate de que pg_hba.conf permita conexiones",
+        "Verifica la configuración del firewall para conexiones remotas"
       ]
     },
     {
@@ -188,10 +188,10 @@ export default function Help() {
       defaultPort: 3306,
       icon: Database,
       tips: [
-        "Default port is 3306",
-        "Ensure user has proper privileges",
-        "Check bind-address in my.cnf",
-        "Enable remote connections if needed"
+        "El puerto por defecto es 3306",
+        "Asegúrate de que el usuario tenga los privilegios adecuados",
+        "Verifica bind-address en my.cnf",
+        "Habilita conexiones remotas si es necesario"
       ]
     },
     {
@@ -315,7 +315,7 @@ export default function Help() {
       <div className="space-y-6">
         <div className="flex items-center">
           <Database className="h-5 w-5 mr-2" />
-          <h2 className="text-2xl font-bold">Database Connection Guide</h2>
+          <h2 className="text-2xl font-bold">Guía de Conexión a Base de Datos</h2>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -327,7 +327,7 @@ export default function Help() {
                   {guide.type}
                 </CardTitle>
                 <CardDescription>
-                  Default port: {guide.defaultPort}
+                  Puerto por defecto: {guide.defaultPort}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -350,27 +350,27 @@ export default function Help() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Shield className="h-5 w-5 mr-2" />
-            Security & Privacy
+            Seguridad y Privacidad
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <h4 className="font-medium mb-2">Data Security</h4>
+              <h4 className="font-medium mb-2">Seguridad de Datos</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• All connections are encrypted with TLS/SSL</li>
-                <li>• Database credentials are never stored permanently</li>
-                <li>• Session data is cleared when you log out</li>
-                <li>• No data is transmitted to third parties</li>
+                <li>• Todas las conexiones están encriptadas con TLS/SSL</li>
+                <li>• Las credenciales de base de datos nunca se almacenan permanentemente</li>
+                <li>• Los datos de sesión se eliminan al cerrar sesión</li>
+                <li>• No se transmiten datos a terceros</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-medium mb-2">Best Practices</h4>
+              <h4 className="font-medium mb-2">Mejores Prácticas</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Use read-only database users when possible</li>
-                <li>• Regularly rotate database passwords</li>
-                <li>• Monitor database access logs</li>
-                <li>• Use VPN for additional security</li>
+                <li>• Usa usuarios de base de datos de solo lectura cuando sea posible</li>
+                <li>• Rota regularmente las contraseñas de base de datos</li>
+                <li>• Monitorea los registros de acceso a la base de datos</li>
+                <li>• Usa VPN para seguridad adicional</li>
               </ul>
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function Help() {
       <div className="space-y-6">
         <div className="flex items-center">
           <HelpCircle className="h-5 w-5 mr-2" />
-          <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold">Preguntas Frecuentes</h2>
         </div>
 
         <div className="space-y-4">
@@ -418,9 +418,9 @@ export default function Help() {
           <Card>
             <CardContent className="text-center py-8">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No results found</h3>
+              <h3 className="text-lg font-semibold mb-2">No se encontraron resultados</h3>
               <p className="text-muted-foreground">
-                Try adjusting your search terms or browse the examples above
+                Intenta ajustar tus términos de búsqueda o navega por los ejemplos de arriba
               </p>
             </CardContent>
           </Card>
@@ -432,29 +432,29 @@ export default function Help() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <MessageSquare className="h-5 w-5 mr-2" />
-            Still Need Help?
+            ¿Aún Necesitas Ayuda?
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <h4 className="font-medium mb-2">Documentation</h4>
+              <h4 className="font-medium mb-2">Documentación</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Visit our comprehensive documentation for detailed guides and API references.
+                Visita nuestra documentación completa para guías detalladas y referencias de API.
               </p>
               <Button variant="outline" className="w-full">
                 <BookOpen className="h-4 w-4 mr-2" />
-                View Documentation
+                Ver Documentación
               </Button>
             </div>
             <div>
-              <h4 className="font-medium mb-2">Contact Support</h4>
+              <h4 className="font-medium mb-2">Contactar Soporte</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Get in touch with our support team for personalized assistance.
+                Ponte en contacto con nuestro equipo de soporte para asistencia personalizada.
               </p>
               <Button variant="outline" className="w-full">
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Contact Support
+                Contactar Soporte
               </Button>
             </div>
           </div>
