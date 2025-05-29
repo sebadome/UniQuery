@@ -1,0 +1,151 @@
+Vas a desarrollar una web app moderna que permite a usuarios autenticados conectarse a su propia base de datos relacional y realizarle consultas en lenguaje natural. La app debe comunicarse con un backend FastAPI (ya definido), que convierte preguntas en SQL, ejecuta la consulta, y responde en lenguaje natural.
+
+El foco: Experiencia de usuario simple, segura, elegante y 100% funcional para interacción conversacional con la base de datos, multicuenta y multiconexión.
+
+Páginas y Componentes Mínimos
+1. Login / Registro
+Login: Usuario y contraseña. Muestra mensajes de error claros (ejemplo: "Usuario o contraseña incorrecta").
+
+Registro: Nombre, email, contraseña. Confirma la creación y permite ir directo a login.
+
+Persistencia de sesión (JWT/token) para no pedir login cada vez que se refresca la app.
+
+Recuperación de contraseña (opcional).
+
+2. Dashboard / Home
+Pantalla de bienvenida tras login.
+
+Mostrar nombre de usuario, estado de conexión a BD (“No conectada” o datos mínimos).
+
+Botón “Conectar a base de datos” y resumen del historial reciente de consultas.
+
+3. Conectar Base de Datos
+Formulario para ingresar datos:
+
+Host (ejemplo: mi-servidor.com o 127.0.0.1)
+
+Puerto (ejemplo: 5432, 3306)
+
+Usuario BD (ejemplo: postgres)
+
+Contraseña BD (input tipo password)
+
+Nombre de la base de datos (ejemplo: clientes_db)
+
+Tipo de motor (dropdown: PostgreSQL, MySQL, SQL Server, etc.)
+
+Botón “Probar conexión”:
+
+Feedback instantáneo: “Conexión exitosa” (verde) o “Error: usuario/host/puerto incorrecto” (rojo).
+
+Deshabilita chat y consultas hasta que la conexión sea exitosa.
+
+Botón para guardar esta conexión (solo en sesión, nunca persistir contraseñas en frontend).
+
+4. Chat Conversacional
+Caja de entrada para escribir preguntas en lenguaje natural.
+
+Botón enviar (o Enter para enviar).
+
+Historial de conversación:
+
+Pregunta, respuesta, fecha/hora.
+
+Mostrar loading/spinner mientras se procesa.
+
+Respuesta:
+
+Mensaje natural del backend.
+
+(Opcional pero recomendado): Botón para ver/copy la query SQL generada (“Ver SQL”).
+
+Mostrar errores de forma clara (“Error al conectar con la base de datos”, “Error en la consulta”, etc.).
+
+Permitir limpiar historial de chat.
+
+5. Feedback de la Respuesta
+Cada respuesta del chat puede ser “calificada” (👍/👎 o 1 a 5 estrellas).
+
+Caja para comentarios (“¿Esta respuesta te sirvió? ¿Por qué?”).
+
+Botón “Enviar feedback”.
+
+6. Gestión de Cuenta
+Ver/editar nombre, email.
+
+Cambiar contraseña.
+
+Cerrar sesión.
+
+7. Ayuda / FAQ / Ejemplos
+Página con ejemplos de consultas:
+
+Ej: “¿Cuántos usuarios se registraron el mes pasado?”, “Dame el total de ventas por producto en 2024”, etc.
+
+Explicación de cómo conectar una base de datos.
+
+Preguntas frecuentes (“¿Por qué no se conecta mi BD?”, “¿Qué motores soporta?”, etc.)
+
+Consideraciones Técnicas
+Framework recomendado: React (Next.js, Vite, etc.) o Vue. No usar Chainlit.
+
+Autenticación: Manejar JWT/tokens como indica el backend.
+
+Comunicación: Usar fetch/axios para consumir endpoints REST del backend. Esperar y manejar status HTTP y errores.
+
+No almacenar contraseñas de base de datos en localStorage ni persistente: solo en memoria/session.
+
+Diseño responsivo: La app debe verse bien en desktop y móvil (puedes usar MUI, Ant Design, Tailwind, etc.).
+
+UX amigable: Loading states, tooltips, validaciones en formularios, mensajes claros de error.
+
+Accesibilidad: Inputs y botones con labels, navegación con teclado.
+
+Documentación interna: Código comentado, instrucciones para levantar el frontend y mock de endpoints.
+
+Ejemplo de Flujo de Usuario
+Usuario entra a /login.
+
+Ingresa usuario y contraseña.
+
+Ve el dashboard y el botón “Conectar a base de datos”.
+
+Ingresa datos de conexión, prueba, guarda.
+
+Va al chat, hace preguntas.
+
+El backend responde (en lenguaje natural), usuario puede ver el SQL, enviar feedback.
+
+Puede cerrar sesión, editar perfil, revisar ayuda.
+
+Ejemplo de Componentes React
+<LoginForm />
+
+<RegisterForm />
+
+<Dashboard />
+
+<DBConnectionForm />
+
+<ChatBox /> (incluye historial, input, respuestas, loading, botón ver SQL, feedback)
+
+<FeedbackModal />
+
+<AccountSettings />
+
+<HelpFAQ />
+
+Endpoints del Backend que debe consumir
+POST /login — Login de usuario (recibe usuario/pass, recibe token).
+
+POST /register — Crear nuevo usuario.
+
+POST /connect_db — Probar y guardar conexión a BD (envía config, recibe status).
+
+POST /human_query — Envía pregunta y recibe respuesta (requiere estar conectado a BD).
+
+POST /feedback — Envía feedback sobre una respuesta.
+
+GET /me — Obtener datos de usuario/logueado.
+
+POST /logout — Cerrar sesión.
