@@ -133,7 +133,8 @@ export class MemStorage implements IStorage {
     const connection: DatabaseConnection = {
       ...connectionData,
       id,
-      createdAt: new Date()
+      createdAt: new Date(),
+      isActive: connectionData.isActive ?? false
     };
     this.connections.set(id, connection);
     return connection;
@@ -143,7 +144,21 @@ export class MemStorage implements IStorage {
     const connection = this.connections.get(id);
     if (!connection || connection.userId !== userId) return undefined;
     
-    const updatedConnection = { ...connection, ...updateData };
+    // Create updated connection with explicit type handling
+    const updatedConnection: DatabaseConnection = { 
+      id: connection.id,
+      createdAt: connection.createdAt,
+      userId: connection.userId,
+      name: updateData.name ?? connection.name,
+      type: updateData.type ?? connection.type,
+      host: updateData.host ?? connection.host,
+      port: updateData.port ?? connection.port,
+      database: updateData.database ?? connection.database,
+      username: updateData.username ?? connection.username,
+      password: updateData.password ?? connection.password,
+      isActive: updateData.isActive ?? connection.isActive
+    };
+    
     this.connections.set(id, updatedConnection);
     return updatedConnection;
   }
