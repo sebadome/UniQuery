@@ -208,6 +208,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/database/disconnect", authenticateToken, async (req: any, res) => {
+    try {
+      const { connectionId } = req.body;
+      
+      if (!connectionId) {
+        return res.status(400).json({ message: "Connection ID is required" });
+      }
+      
+      // Deactivate the connection
+      const updatedConnection = await storage.updateConnection(connectionId, req.userId, { isActive: false });
+      
+      if (!updatedConnection) {
+        return res.status(404).json({ message: "Connection not found" });
+      }
+
+      res.json({ message: "Base de datos desconectada exitosamente" });
+    } catch (error) {
+      res.status(500).json({ message: "Error interno del servidor" });
+    }
+  });
+
   app.get("/api/database/connections", authenticateToken, async (req: any, res) => {
     try {
       const connections = await storage.getUserConnections(req.userId);

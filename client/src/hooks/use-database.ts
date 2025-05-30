@@ -119,10 +119,46 @@ export function useDatabase() {
     }
   };
 
+  const disconnect = async (connectionId: number): Promise<boolean> => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
+      await databaseApi.disconnect(connectionId);
+      
+      setState(prev => ({
+        ...prev,
+        activeConnection: null,
+        isConnected: false,
+        isLoading: false,
+      }));
+
+      toast({
+        title: "Base de datos desconectada",
+        description: "La conexión se ha desconectado exitosamente",
+      });
+
+      // Reload connections to ensure consistency
+      loadConnections();
+      
+      return true;
+    } catch (error: any) {
+      setState(prev => ({ ...prev, isLoading: false }));
+      
+      toast({
+        title: "Error al desconectar",
+        description: error.message || "No se pudo desconectar la base de datos",
+        variant: "destructive",
+      });
+      
+      return false;
+    }
+  };
+
   return {
     ...state,
     testConnection,
     connect,
+    disconnect,
     refreshConnections: loadConnections,
   };
 }

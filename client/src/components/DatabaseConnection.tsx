@@ -30,7 +30,7 @@ export function DatabaseConnection() {
   const [testError, setTestError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   
-  const { testConnection, connect, isConnected, activeConnection } = useDatabase();
+  const { testConnection, connect, disconnect, isConnected, activeConnection } = useDatabase();
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DbConnectionFormData>({
     resolver: zodResolver(dbConnectionSchema),
@@ -120,9 +120,19 @@ export function DatabaseConnection() {
                   {activeConnection.type} • {activeConnection.database}
                 </p>
               </div>
-              <Badge variant="secondary" className="bg-green-50 text-green-700">
-                Activa
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="bg-green-50 text-green-700">
+                  Activa
+                </Badge>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => disconnect(activeConnection.id)}
+                  disabled={isConnecting}
+                >
+                  Desconectar
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

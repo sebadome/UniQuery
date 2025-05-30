@@ -94,6 +94,11 @@ export const databaseApi = {
     return response.json();
   },
 
+  disconnect: async (connectionId: number): Promise<{ message: string }> => {
+    const response = await apiRequest('POST', '/api/database/disconnect', { connectionId });
+    return response.json();
+  },
+
   getConnections: async (): Promise<{ connections: DatabaseConnection[] }> => {
     const response = await apiRequest('GET', '/api/database/connections');
     return response.json();
