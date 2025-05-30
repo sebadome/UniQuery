@@ -167,8 +167,14 @@ export function ChatInterface() {
 
   const clearChat = () => {
     setMessages([]);
-    // Force a re-fetch of the query client to clear cache
-    queryClient.invalidateQueries({ queryKey: ['/api/queries/history'] });
+    // Clear the query cache completely
+    queryClient.removeQueries({ queryKey: ['/api/queries/history'] });
+    queryClient.setQueryData(['/api/queries/history'], { queries: [] });
+    
+    toast({
+      title: "Chat limpiado",
+      description: "El historial del chat ha sido eliminado",
+    });
   };
 
   const quickSuggestions = [
