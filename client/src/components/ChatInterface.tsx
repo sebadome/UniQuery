@@ -271,7 +271,7 @@ export function ChatInterface() {
                       {msg.type === 'assistant' && msg.executionTime && (
                         <div className="mt-2 pt-2 border-t border-muted-foreground/20">
                           <Badge variant="secondary" className="text-xs">
-                            Executed in {msg.executionTime}ms
+                            Ejecutado en {msg.executionTime}ms
                           </Badge>
                         </div>
                       )}
