@@ -37,13 +37,13 @@ export function DatabaseConnection() {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DbConnectionFormData>({
     resolver: zodResolver(dbConnectionSchema),
     defaultValues: {
-      name: '',
-      type: '',
-      host: '',
+      name: 'Conexión de Prueba',
+      type: 'postgresql',
+      host: 'localhost',
       port: 5432,
-      database: '',
-      username: '',
-      password: '',
+      database: 'test_db',
+      username: 'test_user',
+      password: 'test_password',
     },
   });
 
