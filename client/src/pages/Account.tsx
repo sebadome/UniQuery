@@ -220,7 +220,7 @@ export default function Account() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="newPassword">New Password</Label>
+                  <Label htmlFor="newPassword">Nueva Contraseña</Label>
                   <Input
                     id="newPassword"
                     type="password"
@@ -235,7 +235,7 @@ export default function Account() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -256,10 +256,10 @@ export default function Account() {
                   {changePasswordMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Changing...
+                      Cambiando...
                     </>
                   ) : (
-                    'Change Password'
+                    'Cambiar Contraseña'
                   )}
                 </Button>
               </form>
@@ -270,18 +270,18 @@ export default function Account() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Bell className="h-5 w-5 mr-2" />
-                Preferences
+                Preferencias
               </CardTitle>
               <CardDescription>
-                Customize your experience and notification settings
+                Personaliza tu experiencia y configuración de notificaciones
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Email Notifications</Label>
+                  <Label>Notificaciones por Email</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive notifications about query results and system updates
+                    Recibe notificaciones sobre resultados de consultas y actualizaciones del sistema
                   </p>
                 </div>
                 <Switch
@@ -294,9 +294,9 @@ export default function Account() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Auto-save Queries</Label>
+                  <Label>Autoguardar Consultas</Label>
                   <p className="text-sm text-muted-foreground">
-                    Automatically save your query history
+                    Guardar automáticamente tu historial de consultas
                   </p>
                 </div>
                 <Switch
@@ -309,9 +309,9 @@ export default function Account() {
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Show SQL Queries</Label>
+                  <Label>Mostrar Consultas SQL</Label>
                   <p className="text-sm text-muted-foreground">
-                    Display generated SQL queries by default
+                    Mostrar las consultas SQL generadas por defecto
                   </p>
                 </div>
                 <Switch
@@ -327,7 +327,7 @@ export default function Account() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Account Status</CardTitle>
+              <CardTitle>Estado de la Cuenta</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
