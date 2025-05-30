@@ -216,11 +216,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Connection ID is required" });
       }
       
-      // Deactivate the connection
-      const updatedConnection = await storage.updateConnection(connectionId, req.userId, { isActive: false });
-      
-      if (!updatedConnection) {
-        return res.status(404).json({ message: "Connection not found" });
+      // Deactivate all connections for this user
+      const userConnections = await storage.getUserConnections(req.userId);
+      for (const conn of userConnections) {
+        if (conn.id === connectionId || conn.isActive) {
+          await storage.updateConnection(conn.id, req.userId, { isActive: false });
+        }
       }
 
       res.json({ message: "Base de datos desconectada exitosamente" });
