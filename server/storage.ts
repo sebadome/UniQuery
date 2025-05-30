@@ -62,6 +62,23 @@ export class MemStorage implements IStorage {
     
     this.users.set(1, testUser);
     this.currentUserId = 2;
+    
+    // Create a test database connection for demo purposes
+    const testConnection: DatabaseConnection = {
+      id: 1,
+      name: 'Conexión de Prueba',
+      type: 'postgresql',
+      host: 'localhost',
+      port: 5432,
+      username: 'test_user',
+      database: 'test_db',
+      userId: 1,
+      isActive: true,
+      createdAt: new Date()
+    };
+    
+    this.connections.set(1, testConnection);
+    this.currentConnectionId = 2;
   }
 
   async getUser(id: number): Promise<User | undefined> {

@@ -86,10 +86,11 @@ export function useDatabase() {
       const response = await databaseApi.connect(connectionData);
       
       // Immediately update state with the connection
+      const newConnection = { ...response.connection, isActive: true };
       setState(prev => ({
         ...prev,
-        connections: [...prev.connections.filter(c => c.id !== response.connection.id), response.connection],
-        activeConnection: response.connection,
+        connections: [...prev.connections.filter(c => c.id !== newConnection.id), newConnection],
+        activeConnection: newConnection,
         isConnected: true,
         isLoading: false,
       }));
@@ -99,8 +100,10 @@ export function useDatabase() {
         description: `Conectado a ${response.connection.database}`,
       });
 
-      // Also reload connections in background to ensure consistency
-      loadConnections();
+      // Force re-render by reloading connections after a short delay
+      setTimeout(() => {
+        loadConnections();
+      }, 500);
       
       return true;
     } catch (error: any) {

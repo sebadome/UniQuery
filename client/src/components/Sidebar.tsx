@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useDatabase } from '@/hooks/use-database';
