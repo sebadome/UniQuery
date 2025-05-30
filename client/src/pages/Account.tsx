@@ -332,18 +332,18 @@ export default function Account() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Member Since</span>
+                  <span className="text-muted-foreground">Miembro Desde</span>
                   <span className="font-medium">
                     {user?.username ? 'Nov 2024' : '--'}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Username</span>
+                  <span className="text-muted-foreground">Nombre de Usuario</span>
                   <span className="font-medium">{user?.username || '--'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Account Type</span>
-                  <Badge variant="secondary">Free</Badge>
+                  <span className="text-muted-foreground">Tipo de Cuenta</span>
+                  <Badge variant="secondary">Gratuita</Badge>
                 </div>
               </div>
             </CardContent>
@@ -353,16 +353,16 @@ export default function Account() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Download className="h-5 w-5 mr-2" />
-                Data Export
+                Exportar Datos
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Export your query history and account data
+                Exporta tu historial de consultas y datos de cuenta
               </p>
               <Button variant="outline" className="w-full">
                 <Download className="h-4 w-4 mr-2" />
-                Download Data
+                Descargar Datos
               </Button>
             </CardContent>
           </Card>
@@ -371,15 +371,15 @@ export default function Account() {
             <CardHeader>
               <CardTitle className="flex items-center text-destructive">
                 <AlertTriangle className="h-5 w-5 mr-2" />
-                Danger Zone
+                Zona de Peligro
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Permanently delete your account and all associated data. This action cannot be undone.
+                Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.
               </p>
               <Button variant="destructive" className="w-full">
-                Delete Account
+                Eliminar Cuenta
               </Button>
             </CardContent>
           </Card>
