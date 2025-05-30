@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import logoUnifrutti from '@assets/LOGO-UNIFRUTTI-2021.png';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -57,8 +58,12 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-          <i className="fas fa-database text-white text-2xl"></i>
+        <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+          <img 
+            src={logoUnifrutti} 
+            alt="Unifrutti Logo" 
+            className="w-full h-full object-contain"
+          />
         </div>
         <h1 className="text-3xl font-bold text-slate-800 mb-2">UniQuery</h1>
         <p className="text-slate-600">Interfaz de base de datos en lenguaje natural</p>

@@ -14,6 +14,7 @@ import {
   Wifi,
   WifiOff
 } from 'lucide-react';
+import logoUnifrutti from '@assets/LOGO-UNIFRUTTI-2021.png';
 
 export function Sidebar() {
   const [location, setLocation] = useLocation();
@@ -44,8 +45,12 @@ export function Sidebar() {
     <div className="flex flex-col h-full w-64 bg-white border-r border-slate-200">
       {/* Logo */}
       <div className="flex items-center px-6 py-4 border-b border-slate-200">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
-          <i className="fas fa-database text-white text-sm"></i>
+        <div className="w-10 h-10 mr-3 flex items-center justify-center">
+          <img 
+            src={logoUnifrutti} 
+            alt="Unifrutti Logo" 
+            className="w-full h-full object-contain"
+          />
         </div>
         <span className="text-lg font-semibold text-slate-800">UniQuery</span>
       </div>
