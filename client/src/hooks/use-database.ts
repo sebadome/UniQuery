@@ -93,11 +93,15 @@ export function useDatabase() {
       }));
 
       toast({
-        title: "Database connected!",
-        description: `Connected to ${response.connection.database}`,
+        title: "Base de datos conectada!",
+        description: `Conectado a ${response.connection.database}`,
       });
 
-      await loadConnections();
+      // Force reload connections to update sidebar state
+      setTimeout(async () => {
+        await loadConnections();
+      }, 100);
+      
       return true;
     } catch (error: any) {
       setState(prev => ({ ...prev, isLoading: false }));
