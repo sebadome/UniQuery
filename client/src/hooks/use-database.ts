@@ -125,8 +125,12 @@ export function useDatabase() {
       
       await databaseApi.disconnect(connectionId);
       
+      // Update connections list immediately by setting isActive to false
       setState(prev => ({
         ...prev,
+        connections: prev.connections.map(conn => 
+          conn.id === connectionId ? { ...conn, isActive: false } : conn
+        ),
         activeConnection: null,
         isConnected: false,
         isLoading: false,
@@ -138,7 +142,9 @@ export function useDatabase() {
       });
 
       // Reload connections to ensure consistency
-      loadConnections();
+      setTimeout(() => {
+        loadConnections();
+      }, 100);
       
       return true;
     } catch (error: any) {
