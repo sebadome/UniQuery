@@ -37,13 +37,13 @@ export function DatabaseConnection() {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DbConnectionFormData>({
     resolver: zodResolver(dbConnectionSchema),
     defaultValues: {
-      name: 'Conexión de Prueba',
-      type: 'postgresql',
-      host: 'localhost',
+      name: '',
+      type: '',
+      host: '',
       port: 5432,
-      database: 'test_db',
-      username: 'test_user',
-      password: 'test_password',
+      database: '',
+      username: '',
+      password: '',
     },
   });
 
@@ -155,7 +155,7 @@ export function DatabaseConnection() {
                 <Label htmlFor="name">Nombre de Conexión</Label>
                 <Input
                   id="name"
-                  placeholder="Mi Base de Datos"
+                  placeholder="Ej: Conexión de Prueba"
                   {...register('name')}
                 />
                 {errors.name && (
@@ -210,7 +210,7 @@ export function DatabaseConnection() {
                 <Label htmlFor="database">Nombre de Base de Datos</Label>
                 <Input
                   id="database"
-                  placeholder="my_database"
+                  placeholder="test_db"
                   {...register('database')}
                 />
                 {errors.database && (
@@ -222,7 +222,7 @@ export function DatabaseConnection() {
                 <Label htmlFor="username">Nombre de Usuario</Label>
                 <Input
                   id="username"
-                  placeholder="postgres"
+                  placeholder="test_user"
                   {...register('username')}
                 />
                 {errors.username && (
@@ -236,7 +236,7 @@ export function DatabaseConnection() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="test_password"
                     {...register('password')}
                   />
                   <button
