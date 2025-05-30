@@ -52,7 +52,7 @@ export function Sidebar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="text-lg font-semibold text-slate-800">UniQuery</span>
+        <span className="text-lg font-black text-slate-800 tracking-tight">UniQuery</span>
       </div>
 
       {/* User Info */}

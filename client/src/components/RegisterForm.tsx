@@ -65,8 +65,8 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
             className="w-full h-full object-contain"
           />
         </div>
-        <h1 className="text-3xl font-bold text-slate-800 mb-2">UniQuery</h1>
-        <p className="text-slate-600">Interfaz de base de datos en lenguaje natural</p>
+        <h1 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">UniQuery</h1>
+        <p className="text-slate-600 font-medium">Interfaz de base de datos en lenguaje natural</p>
       </div>
 
       <Card>
