@@ -67,9 +67,9 @@ function Router() {
           <AuthenticatedLayout>
             <div className="space-y-6">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">Database Connection</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Conexión a Base de Datos</h1>
                 <p className="text-muted-foreground">
-                  Connect to your database to start querying with natural language
+                  Conéctate a tu base de datos para comenzar a consultar con lenguaje natural
                 </p>
               </div>
               <DatabaseConnection />
@@ -83,9 +83,9 @@ function Router() {
           <AuthenticatedLayout>
             <div className="h-[calc(100vh-4rem)] flex flex-col">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold tracking-tight">Query Chat</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Chat de Consultas</h1>
                 <p className="text-muted-foreground">
-                  Ask questions about your database in natural language
+                  Haz preguntas sobre tu base de datos en lenguaje natural
                 </p>
               </div>
               <div className="flex-1 min-h-0">

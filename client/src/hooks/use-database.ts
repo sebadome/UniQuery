@@ -55,15 +55,15 @@ export function useDatabase() {
       await databaseApi.testConnection(connectionData);
       
       toast({
-        title: "Connection successful!",
-        description: "Database connection test passed",
+        title: "¡Conexión exitosa!",
+        description: "La prueba de conexión a la base de datos fue exitosa",
       });
       
       return true;
     } catch (error: any) {
       toast({
-        title: "Connection failed",
-        description: error.message || "Unable to connect to database",
+        title: "Conexión fallida",
+        description: error.message || "No se pudo conectar a la base de datos",
         variant: "destructive",
       });
       
@@ -110,8 +110,8 @@ export function useDatabase() {
       setState(prev => ({ ...prev, isLoading: false }));
       
       toast({
-        title: "Connection failed",
-        description: error.message || "Failed to connect to database",
+        title: "Conexión fallida",
+        description: error.message || "No se pudo conectar a la base de datos",
         variant: "destructive",
       });
       
