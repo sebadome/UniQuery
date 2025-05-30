@@ -216,23 +216,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Connection ID is required" });
       }
       
-      // Deactivate all connections for this user
-      const userConnections = await storage.getUserConnections(req.userId);
-      console.log("Before disconnect:", userConnections.map(c => ({ id: c.id, isActive: c.isActive })));
-      
-      for (const conn of userConnections) {
-        if (conn.id === connectionId || conn.isActive) {
-          const updated = await storage.updateConnection(conn.id, req.userId, { isActive: false });
-          console.log("Updated connection:", { id: conn.id, isActive: updated?.isActive });
-        }
-      }
-      
-      const afterConnections = await storage.getUserConnections(req.userId);
-      console.log("After disconnect:", afterConnections.map(c => ({ id: c.id, isActive: c.isActive })));
+      // Directly update the connection to inactive
+      await storage.updateConnection(connectionId, req.userId, { isActive: false });
 
       res.json({ message: "Base de datos desconectada exitosamente" });
     } catch (error) {
-      console.error("Disconnect error:", error);
       res.status(500).json({ message: "Error interno del servidor" });
     }
   });
