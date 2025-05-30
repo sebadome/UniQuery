@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export function Sidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, logout } = useAuth();
   const { isConnected, activeConnection } = useDatabase();
 
@@ -37,6 +37,7 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     await logout();
+    setLocation('/login');
   };
 
   return (
