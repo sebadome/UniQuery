@@ -85,8 +85,10 @@ export function useDatabase() {
       
       const response = await databaseApi.connect(connectionData);
       
+      // Immediately update state with the connection
       setState(prev => ({
         ...prev,
+        connections: [...prev.connections.filter(c => c.id !== response.connection.id), response.connection],
         activeConnection: response.connection,
         isConnected: true,
         isLoading: false,
@@ -97,10 +99,8 @@ export function useDatabase() {
         description: `Conectado a ${response.connection.database}`,
       });
 
-      // Force reload connections to update sidebar state
-      setTimeout(async () => {
-        await loadConnections();
-      }, 100);
+      // Also reload connections in background to ensure consistency
+      loadConnections();
       
       return true;
     } catch (error: any) {

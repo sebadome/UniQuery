@@ -149,13 +149,13 @@ export function ChatInterface() {
     try {
       await navigator.clipboard.writeText(selectedSql);
       toast({
-        title: "Copied!",
-        description: "SQL query copied to clipboard",
+        title: "¡Copiado!",
+        description: "Consulta SQL copiada al portapapeles",
       });
     } catch (error) {
       toast({
-        title: "Copy failed",
-        description: "Failed to copy SQL query",
+        title: "Error al copiar",
+        description: "No se pudo copiar la consulta SQL",
         variant: "destructive",
       });
     }
@@ -367,7 +367,7 @@ export function ChatInterface() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask a question about your data..."
+              placeholder="Haz una pregunta sobre tus datos..."
               disabled={sendMessageMutation.isPending}
               className="flex-1"
             />
@@ -379,7 +379,7 @@ export function ChatInterface() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 max-w-4xl mx-auto">
-            Try: "Show me sales trends", "List all customers", "Find products with low stock"
+            Prueba: "Muéstrame tendencias de ventas", "Lista todos los clientes", "Encuentra productos con bajo inventario"
           </p>
         </form>
       </div>
