@@ -133,8 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", authenticateToken, async (req, res) => {
+  app.post("/api/auth/logout", async (req, res) => {
     // In a real implementation, you might blacklist the token
+    // No authentication required for logout - just clear client-side session
     res.json({ message: "Logout successful" });
   });
 
