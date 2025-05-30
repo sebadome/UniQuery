@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +43,18 @@ export default function Account() {
     showSqlQueries: false,
   });
 
+  // Load preferences from localStorage on component mount
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('userPreferences');
+    if (savedPreferences) {
+      try {
+        setPreferences(JSON.parse(savedPreferences));
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+      }
+    }
+  }, []);
+
   // Profile form
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -70,6 +82,7 @@ export default function Account() {
       toast({
         title: "Perfil actualizado",
         description: "Tu perfil ha sido actualizado exitosamente",
+        duration: 3000,
       });
     },
     onError: (error: any) => {
@@ -89,6 +102,7 @@ export default function Account() {
       toast({
         title: "Contraseña cambiada",
         description: "Tu contraseña ha sido actualizada exitosamente",
+        duration: 3000,
       });
     },
     onError: (error: any) => {
@@ -112,11 +126,16 @@ export default function Account() {
   };
 
   const handlePreferenceChange = (key: keyof typeof preferences, value: boolean) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
-    // In a real app, you'd save this to the backend
+    const newPreferences = { ...preferences, [key]: value };
+    setPreferences(newPreferences);
+    
+    // Save to localStorage
+    localStorage.setItem('userPreferences', JSON.stringify(newPreferences));
+    
     toast({
       title: "Preferencia actualizada",
       description: "Tu preferencia ha sido guardada",
+      duration: 3000, // Toast will disappear after 3 seconds
     });
   };
 
