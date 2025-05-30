@@ -42,6 +42,26 @@ export class MemStorage implements IStorage {
     this.currentConnectionId = 1;
     this.currentQueryId = 1;
     this.currentFeedbackId = 1;
+    
+    // Create a test user for development
+    this.createTestUser();
+  }
+  
+  private async createTestUser() {
+    const bcrypt = await import('bcrypt');
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    
+    const testUser: User = {
+      id: 1,
+      username: 'admin',
+      email: 'admin@unifrutti.com',
+      name: 'Administrador UniQuery',
+      password: hashedPassword,
+      createdAt: new Date()
+    };
+    
+    this.users.set(1, testUser);
+    this.currentUserId = 2;
   }
 
   async getUser(id: number): Promise<User | undefined> {
