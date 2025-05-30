@@ -43,15 +43,15 @@ export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
     mutationFn: feedbackApi.submit,
     onSuccess: () => {
       toast({
-        title: "Thank you!",
-        description: "Your feedback has been submitted successfully",
+        title: "¡Gracias!",
+        description: "Tu feedback ha sido enviado exitosamente",
       });
       handleClose();
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to submit feedback",
-        description: error.message || "Please try again",
+        title: "Error al enviar feedback",
+        description: error.message || "Por favor intenta de nuevo",
         variant: "destructive",
       });
     },
@@ -91,12 +91,12 @@ export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Send Feedback</DialogTitle>
+          <DialogTitle>Enviar Feedback</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-3">
-            <Label>How would you rate this response?</Label>
+            <Label>¿Cómo calificarías esta respuesta?</Label>
             <div className="flex space-x-1">
               {[1, 2, 3, 4, 5].map((value) => (
                 <button
@@ -118,27 +118,27 @@ export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
             {rating > 0 && (
               <div className="flex items-center space-x-2">
                 <Badge variant="secondary">
-                  {rating} star{rating !== 1 ? 's' : ''}
+                  {rating} estrella{rating !== 1 ? 's' : ''}
                 </Badge>
                 <span className="text-sm text-muted-foreground">
-                  {rating === 1 && 'Poor'}
-                  {rating === 2 && 'Fair'}
-                  {rating === 3 && 'Good'}
-                  {rating === 4 && 'Very Good'}
-                  {rating === 5 && 'Excellent'}
+                  {rating === 1 && 'Malo'}
+                  {rating === 2 && 'Regular'}
+                  {rating === 3 && 'Bueno'}
+                  {rating === 4 && 'Muy Bueno'}
+                  {rating === 5 && 'Excelente'}
                 </span>
               </div>
             )}
             {errors.rating && (
-              <p className="text-sm text-destructive">Please select a rating</p>
+              <p className="text-sm text-destructive">Por favor selecciona una calificación</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comment">Additional Comments (Optional)</Label>
+            <Label htmlFor="comment">Comentarios Adicionales (Opcional)</Label>
             <Textarea
               id="comment"
-              placeholder="Tell us more about your experience..."
+              placeholder="Cuéntanos más sobre tu experiencia..."
               rows={3}
               {...register('comment')}
               disabled={submitFeedbackMutation.isPending}
@@ -153,7 +153,7 @@ export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
               onClick={handleClose}
               disabled={submitFeedbackMutation.isPending}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               type="submit"
@@ -163,10 +163,10 @@ export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
               {submitFeedbackMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  Enviando...
                 </>
               ) : (
-                'Send Feedback'
+                'Enviar Feedback'
               )}
             </Button>
           </div>

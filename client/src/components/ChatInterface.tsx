@@ -292,7 +292,7 @@ export function ChatInterface() {
                             className="text-xs h-6"
                           >
                             <Code className="h-3 w-3 mr-1" />
-                            View SQL
+                            Ver SQL
                           </Button>
                         )}
                         
