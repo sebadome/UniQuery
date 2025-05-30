@@ -37,6 +37,17 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshConnections();
+    
+    // Listen for disconnect events
+    const handleDisconnect = () => {
+      refreshConnections();
+    };
+    
+    window.addEventListener('database-disconnected', handleDisconnect);
+    
+    return () => {
+      window.removeEventListener('database-disconnected', handleDisconnect);
+    };
   }, []);
 
   const value = {

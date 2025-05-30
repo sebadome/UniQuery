@@ -141,10 +141,8 @@ export function useDatabase() {
         description: "La conexión se ha desconectado exitosamente",
       });
 
-      // Reload connections smoothly to ensure consistency
-      setTimeout(() => {
-        loadConnections();
-      }, 200);
+      // Trigger a global refresh to update all components
+      window.dispatchEvent(new CustomEvent('database-disconnected'));
       
       return true;
     } catch (error: any) {

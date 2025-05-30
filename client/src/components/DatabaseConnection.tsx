@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useDatabase } from '@/hooks/use-database';
+import { useDatabaseContext } from '@/contexts/DatabaseContext';
 import { Loader2, CheckCircle, XCircle, Eye, EyeOff, Info } from 'lucide-react';
 
 const dbConnectionSchema = z.object({
