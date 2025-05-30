@@ -46,7 +46,7 @@ export function Sidebar() {
         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mr-3">
           <i className="fas fa-database text-white text-sm"></i>
         </div>
-        <span className="text-lg font-semibold text-slate-800">DataQuery Pro</span>
+        <span className="text-lg font-semibold text-slate-800">UniQuery</span>
       </div>
 
       {/* User Info */}

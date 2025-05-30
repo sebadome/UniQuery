@@ -13,15 +13,15 @@
   --card-foreground: 215 25% 27%; /* #334155 */
   --border: 220 13% 91%; /* #E2E8F0 */
   --input: 220 13% 91%; /* #E2E8F0 */
-  --primary: 217 91% 60%; /* #3B82F6 */
+  --primary: 215 65% 35%; /* Azul Unifrutti #2E4A87 */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
   --secondary: 210 11% 95%; /* #F1F5F9 */
   --secondary-foreground: 215 25% 27%; /* #334155 */
-  --accent: 210 11% 95%; /* #F1F5F9 */
-  --accent-foreground: 215 25% 27%; /* #334155 */
-  --destructive: 0 84% 60%; /* #EF4444 */
+  --accent: 357 78% 52%; /* Rojo Unifrutti #E31E36 */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --destructive: 357 78% 52%; /* Rojo Unifrutti #E31E36 */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  --ring: 217 91% 60%; /* #3B82F6 */
+  --ring: 215 65% 35%; /* Azul Unifrutti #2E4A87 */
   --radius: 0.5rem;
   --chart-1: 12 76% 61%;
   --chart-2: 173 58% 39%;
@@ -30,12 +30,12 @@
   --chart-5: 27 87% 67%;
   --sidebar-background: 0 0% 100%; /* #FFFFFF */
   --sidebar-foreground: 215 25% 27%; /* #334155 */
-  --sidebar-primary: 217 91% 60%; /* #3B82F6 */
+  --sidebar-primary: 215 65% 35%; /* Azul Unifrutti #2E4A87 */
   --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --sidebar-accent: 210 11% 95%; /* #F1F5F9 */
-  --sidebar-accent-foreground: 215 25% 27%; /* #334155 */
+  --sidebar-accent: 357 78% 52%; /* Rojo Unifrutti #E31E36 */
+  --sidebar-accent-foreground: 0 0% 100%; /* #FFFFFF */
   --sidebar-border: 220 13% 91%; /* #E2E8F0 */
-  --sidebar-ring: 217 91% 60%; /* #3B82F6 */
+  --sidebar-ring: 215 65% 35%; /* Azul Unifrutti #2E4A87 */
 }
 
 .dark {

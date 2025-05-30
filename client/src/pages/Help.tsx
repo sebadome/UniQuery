@@ -167,7 +167,7 @@ export default function Help() {
     {
       id: "data-modification",
       question: "¿Puedo modificar datos a través de consultas en lenguaje natural?",
-      answer: "Por razones de seguridad, DataQuery Pro se enfoca en operaciones de solo lectura (consultas SELECT). Las operaciones INSERT, UPDATE y DELETE no están soportadas a través de la interfaz de lenguaje natural."
+      answer: "Por razones de seguridad, UniQuery se enfoca en operaciones de solo lectura (consultas SELECT). Las operaciones INSERT, UPDATE y DELETE no están soportadas a través de la interfaz de lenguaje natural."
     }
   ];
 
@@ -222,7 +222,7 @@ export default function Help() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Ayuda y Ejemplos</h1>
         <p className="text-muted-foreground">
-          Aprende cómo aprovechar al máximo DataQuery Pro con ejemplos y guías
+          Aprende cómo aprovechar al máximo UniQuery con ejemplos y guías
         </p>
       </div>
 
