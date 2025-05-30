@@ -141,10 +141,8 @@ export function useDatabase() {
         description: "La conexión se ha desconectado exitosamente",
       });
 
-      // Reload connections to ensure consistency
-      setTimeout(() => {
-        loadConnections();
-      }, 100);
+      // Force a hard refresh to update the entire application state
+      window.location.reload();
       
       return true;
     } catch (error: any) {
