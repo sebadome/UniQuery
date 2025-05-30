@@ -31,6 +31,7 @@ export function DatabaseConnection() {
   const [isConnecting, setIsConnecting] = useState(false);
   
   const { testConnection, connect, disconnect, isConnected, activeConnection } = useDatabase();
+  const { refreshConnections } = useDatabaseContext();
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<DbConnectionFormData>({
     resolver: zodResolver(dbConnectionSchema),

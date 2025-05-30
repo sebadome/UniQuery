@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Sidebar } from "@/components/Sidebar";
+import { DatabaseProvider } from "@/contexts/DatabaseContext";
 
 // Pages
 import Login from "@/pages/Login";
@@ -18,12 +19,14 @@ import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <Sidebar />
-      <main className="flex-1 p-8 overflow-auto">
-        {children}
-      </main>
-    </div>
+    <DatabaseProvider>
+      <div className="min-h-screen flex bg-slate-50">
+        <Sidebar />
+        <main className="flex-1 p-8 overflow-auto">
+          {children}
+        </main>
+      </div>
+    </DatabaseProvider>
   );
 }
 

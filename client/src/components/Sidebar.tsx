@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
-import { useDatabase } from '@/hooks/use-database';
+import { useDatabaseContext } from '@/contexts/DatabaseContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -18,7 +18,7 @@ import logoUnifrutti from '@assets/LOGO-UNIFRUTTI-2021.png';
 export function Sidebar() {
   const [location, setLocation] = useLocation();
   const { user, logout } = useAuth();
-  const { isConnected, activeConnection } = useDatabase();
+  const { isConnected, activeConnection } = useDatabaseContext();
 
   const navigation = [
     { name: 'Panel Principal', href: '/', icon: Home },
