@@ -167,6 +167,8 @@ export function ChatInterface() {
 
   const clearChat = () => {
     setMessages([]);
+    // Force a re-fetch of the query client to clear cache
+    queryClient.invalidateQueries({ queryKey: ['/api/queries/history'] });
   };
 
   const quickSuggestions = [

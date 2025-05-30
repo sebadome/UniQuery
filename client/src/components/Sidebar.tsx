@@ -10,9 +10,7 @@ import {
   MessageSquare, 
   Settings, 
   HelpCircle, 
-  LogOut,
-  Wifi,
-  WifiOff
+  LogOut
 } from 'lucide-react';
 import logoUnifrutti from '@assets/LOGO-UNIFRUTTI-2021.png';
 
@@ -79,14 +77,15 @@ export function Sidebar() {
         <div className="flex items-center text-sm">
           {isConnected ? (
             <>
-              <Wifi className="h-4 w-4 text-green-500 mr-2" />
-              <span className="text-green-700">
-                Conectado a {activeConnection?.database}
-              </span>
+              <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+              <div>
+                <span className="text-green-700 font-medium">Conectado</span>
+                <div className="text-xs text-slate-500">{activeConnection?.database}</div>
+              </div>
             </>
           ) : (
             <>
-              <WifiOff className="h-4 w-4 text-red-500 mr-2" />
+              <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
               <span className="text-red-700">No conectado</span>
             </>
           )}
