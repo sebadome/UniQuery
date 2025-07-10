@@ -1,172 +1,151 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { feedbackApi } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
-import { Star, Loader2 } from 'lucide-react';
-
-const feedbackSchema = z.object({
-  rating: z.number().min(1).max(5),
-  comment: z.string().optional(),
-});
-
-type FeedbackFormData = z.infer<typeof feedbackSchema>;
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { databaseApi } from "@/lib/databaseApi";
+import { useToast } from "@/hooks/use-toast";
+import { ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 
 interface FeedbackModalProps {
   open: boolean;
-  queryId?: number;
+  queryLogId?: number;
   onClose: () => void;
 }
 
-export function FeedbackModal({ open, queryId, onClose }: FeedbackModalProps) {
-  const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
+export function FeedbackModal({ open, queryLogId, onClose }: FeedbackModalProps) {
+  const [feedback, setFeedback] = useState<1 | -1 | null>(null);
+  const [comment, setComment] = useState("");
   const { toast } = useToast();
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<FeedbackFormData>({
-    resolver: zodResolver(feedbackSchema),
-    defaultValues: {
-      rating: 0,
-      comment: '',
+  const { mutate: submitFeedback, isPending } = useMutation({
+    mutationFn: async () => {
+      if (!queryLogId || feedback == null) throw new Error("No hay queryLogId o feedback");
+      await databaseApi.sendQueryFeedback({
+        logId: queryLogId,
+        feedback,
+        feedbackComment: comment.trim() ? comment : undefined,
+      });
     },
-  });
-
-  const submitFeedbackMutation = useMutation({
-    mutationFn: feedbackApi.submit,
     onSuccess: () => {
       toast({
-        title: "¡Gracias!",
-        description: "Tu feedback ha sido enviado exitosamente",
+        title: "¡Gracias por tu feedback!",
+        description: "Tu opinión ayuda a mejorar la plataforma.",
       });
       handleClose();
     },
     onError: (error: any) => {
       toast({
         title: "Error al enviar feedback",
-        description: error.message || "Por favor intenta de nuevo",
+        description: error?.message || "Por favor intenta nuevamente.",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: FeedbackFormData) => {
-    if (!queryId) return;
-    
-    submitFeedbackMutation.mutate({
-      queryId,
-      rating: data.rating,
-      comment: data.comment || undefined,
-    });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitFeedback();
   };
 
   const handleClose = () => {
-    reset();
-    setRating(0);
-    setHoveredRating(0);
+    setFeedback(null);
+    setComment("");
     onClose();
-  };
-
-  const handleRatingClick = (value: number) => {
-    setRating(value);
-    setValue('rating', value);
-  };
-
-  const handleRatingHover = (value: number) => {
-    setHoveredRating(value);
-  };
-
-  const handleRatingLeave = () => {
-    setHoveredRating(0);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md w-full">
         <DialogHeader>
-          <DialogTitle>Enviar Feedback</DialogTitle>
+          <DialogTitle>¿Te fue útil la respuesta?</DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-3">
-            <Label>¿Cómo calificarías esta respuesta?</Label>
-            <div className="flex space-x-1">
-              {[1, 2, 3, 4, 5].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={`p-1 transition-colors ${
-                    (hoveredRating || rating) >= value
-                      ? 'text-yellow-400'
-                      : 'text-gray-300'
-                  }`}
-                  onClick={() => handleRatingClick(value)}
-                  onMouseEnter={() => handleRatingHover(value)}
-                  onMouseLeave={handleRatingLeave}
-                >
-                  <Star className="h-6 w-6 fill-current" />
-                </button>
-              ))}
-            </div>
-            {rating > 0 && (
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary">
-                  {rating} estrella{rating !== 1 ? 's' : ''}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {rating === 1 && 'Malo'}
-                  {rating === 2 && 'Regular'}
-                  {rating === 3 && 'Bueno'}
-                  {rating === 4 && 'Muy Bueno'}
-                  {rating === 5 && 'Excelente'}
-                </span>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Botones de Feedback */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center my-2">
+            <button
+              type="button"
+              className={`
+                flex flex-col items-center justify-center w-28 h-14 rounded-lg border
+                transition-colors outline-none
+                ${feedback === 1 ? "bg-primary text-white border-primary" : "bg-white text-slate-700 border-slate-200 hover:bg-primary/10"}
+                focus-visible:ring-2 focus-visible:ring-primary
+              `}
+              aria-pressed={feedback === 1}
+              tabIndex={0}
+              onClick={() => setFeedback(1)}
+              disabled={isPending}
+            >
+              <ThumbsUp className="h-6 w-6 mb-1" />
+              <span className="text-sm font-medium">Sí</span>
+            </button>
+            <button
+              type="button"
+              className={`
+                flex flex-col items-center justify-center w-28 h-14 rounded-lg border
+                transition-colors outline-none
+                ${feedback === -1 ? "bg-red-500 text-white border-red-500" : "bg-white text-slate-700 border-slate-200 hover:bg-red-100"}
+                focus-visible:ring-2 focus-visible:ring-red-500
+              `}
+              aria-pressed={feedback === -1}
+              tabIndex={0}
+              onClick={() => setFeedback(-1)}
+              disabled={isPending}
+            >
+              <ThumbsDown className="h-6 w-6 mb-1" />
+              <span className="text-sm font-medium">No</span>
+            </button>
+          </div>
+
+          {/* Badge de feedback */}
+          <div className="flex items-center justify-center min-h-[28px]">
+            {feedback === 1 && (
+              <Badge variant="secondary">¡Gracias por tu aprobación!</Badge>
             )}
-            {errors.rating && (
-              <p className="text-sm text-destructive">Por favor selecciona una calificación</p>
+            {feedback === -1 && (
+              <Badge variant="destructive">Ayúdanos a mejorar</Badge>
             )}
           </div>
 
+          {/* Comentario adicional */}
           <div className="space-y-2">
-            <Label htmlFor="comment">Comentarios Adicionales (Opcional)</Label>
+            <Label htmlFor="comment">Comentario adicional (opcional)</Label>
             <Textarea
               id="comment"
-              placeholder="Cuéntanos más sobre tu experiencia..."
+              placeholder="Cuéntanos cómo mejorar, o detalla tu experiencia..."
               rows={3}
-              {...register('comment')}
-              disabled={submitFeedbackMutation.isPending}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              disabled={isPending}
+              className="resize-none"
             />
           </div>
 
-          <div className="flex space-x-3">
+          {/* Botones de acción */}
+          <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
               onClick={handleClose}
-              disabled={submitFeedbackMutation.isPending}
+              disabled={isPending}
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               className="flex-1"
-              disabled={rating === 0 || submitFeedbackMutation.isPending}
+              disabled={feedback == null || isPending}
             >
-              {submitFeedbackMutation.isPending ? (
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Enviando...
                 </>
               ) : (
-                'Enviar Feedback'
+                "Enviar Feedback"
               )}
             </Button>
           </div>

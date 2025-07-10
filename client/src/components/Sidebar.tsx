@@ -5,12 +5,12 @@ import { useDatabaseContext } from '@/contexts/DatabaseContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  Home, 
-  Database, 
-  MessageSquare, 
-  Settings, 
-  HelpCircle, 
+import {
+  Home,
+  Database,
+  MessageSquare,
+  Settings,
+  HelpCircle,
   LogOut
 } from 'lucide-react';
 import logoUnifrutti from '@assets/LOGO-UNIFRUTTI-2021.png';
@@ -28,11 +28,12 @@ export function Sidebar() {
     { name: 'Ayuda', href: '/help', icon: HelpCircle },
   ];
 
+  // Función para resaltar el link activo
   const isActive = (href: string) => {
     if (href === '/') {
       return location === '/';
     }
-    return location.startsWith(href);
+    return location.startsWith(href) && href !== '/';
   };
 
   const handleLogout = async () => {
@@ -40,14 +41,30 @@ export function Sidebar() {
     setLocation('/login');
   };
 
+  // Helper para iniciales de usuario (nombre o email)
+  const getInitials = () => {
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase();
+    }
+    if (user?.email) {
+      // Solo dos letras del email para fallback
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return "UQ";
+  };
+
   return (
     <div className="flex flex-col h-full w-64 bg-white border-r border-slate-200">
       {/* Logo */}
       <div className="flex items-center px-6 py-4 border-b border-slate-200">
         <div className="w-10 h-10 mr-3 flex items-center justify-center">
-          <img 
-            src={logoUnifrutti} 
-            alt="Unifrutti Logo" 
+          <img
+            src={logoUnifrutti}
+            alt="Unifrutti Logo"
             className="w-full h-full object-contain"
           />
         </div>
@@ -59,12 +76,12 @@ export function Sidebar() {
         <div className="flex items-center">
           <Avatar className="h-10 w-10 mr-3">
             <AvatarFallback>
-              {user?.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+              {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-800 truncate">
-              {user?.name}
+              {user?.user_metadata?.name ?? user?.email}
             </p>
             <p className="text-xs text-slate-500 truncate">
               {user?.email}
@@ -99,13 +116,16 @@ export function Sidebar() {
           const Icon = item.icon;
           return (
             <Link key={item.name} href={item.href}>
-              <div className={`
-                flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
-                ${isActive(item.href)
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
-                }
-              `}>
+              <div
+                tabIndex={0}
+                className={`
+                  flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
+                  ${isActive(item.href)
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                  }
+                `}
+              >
                 <Icon className="mr-3 h-4 w-4" />
                 {item.name}
               </div>

@@ -24,7 +24,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
-  onRegister: (userData: RegisterFormData) => Promise<boolean>;
+  onRegister: (userData: RegisterFormData) => Promise<boolean | string>;
   onShowLogin: () => void;
 }
 
@@ -34,7 +34,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
@@ -42,10 +42,13 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const success = await onRegister(data);
-      
-      if (!success) {
+      const result = await onRegister(data);
+      if (result === true) {
+        reset();
+        // Puedes mostrar un mensaje de éxito con un toast, modal, o notificación
+      } else if (typeof result === 'string') {
+        setError(result);
+      } else {
         setError('El registro falló. Por favor intenta de nuevo.');
       }
     } catch (err) {
@@ -84,6 +87,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
                 id="name"
                 type="text"
                 placeholder="Ingresa tu nombre completo"
+                autoComplete="name"
                 {...register('name')}
                 disabled={isLoading}
               />
@@ -98,6 +102,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
                 id="username"
                 type="text"
                 placeholder="Elige un nombre de usuario"
+                autoComplete="username"
                 {...register('username')}
                 disabled={isLoading}
               />
@@ -112,6 +117,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
                 id="email"
                 type="email"
                 placeholder="Ingresa tu dirección de email"
+                autoComplete="email"
                 {...register('email')}
                 disabled={isLoading}
               />
@@ -127,6 +133,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Crea una contraseña"
+                  autoComplete="new-password"
                   {...register('password')}
                   disabled={isLoading}
                 />
@@ -151,6 +158,7 @@ export function RegisterForm({ onRegister, onShowLogin }: RegisterFormProps) {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirma tu contraseña"
+                  autoComplete="new-password"
                   {...register('confirmPassword')}
                   disabled={isLoading}
                 />

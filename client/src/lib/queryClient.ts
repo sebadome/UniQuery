@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { getAuthHeaders } from "@/lib/auth";
+import { getSupabaseAuthHeaders } from "@/lib/jwtHelpers";
 
+// Helper para lanzar error si la respuesta no es ok
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -8,12 +9,13 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// apiRequest con headers JWT de Supabase
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const authHeaders = getAuthHeaders();
+  const authHeaders = await getSupabaseAuthHeaders();
   const headers = {
     ...(data ? { "Content-Type": "application/json" } : {}),
     ...authHeaders,
@@ -31,12 +33,14 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+
+// QueryFn para React Query usando JWT de Supabase
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const authHeaders = getAuthHeaders();
+    const authHeaders = await getSupabaseAuthHeaders();
     const res = await fetch(queryKey[0] as string, {
       headers: authHeaders,
       credentials: "include",

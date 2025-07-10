@@ -6,11 +6,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { useDatabase } from '@/hooks/use-database';
 import { queryApi } from '@/lib/api';
 import { Link } from 'wouter';
-import { 
-  Database, 
-  MessageSquare, 
-  TrendingUp, 
-  Clock, 
+import {
+  Database,
+  MessageSquare,
+  TrendingUp,
+  Clock,
   Users,
   Activity,
   CheckCircle,
@@ -37,8 +37,9 @@ export default function Dashboard() {
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          ¡Bienvenido de vuelta, {user?.name?.split(' ')[0]}!
+          ¡Bienvenido de vuelta, {user?.user_metadata?.name?.split(' ')[0] ?? user?.email ?? ""}!
         </h1>
+
         <p className="text-muted-foreground">
           Consulta tus bases de datos usando lenguaje natural
         </p>
@@ -106,8 +107,8 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {queryHistory?.queries?.length ? 
-                Math.round(queryHistory.queries.reduce((acc, q) => acc + (q.executionTime || 0), 0) / queryHistory.queries.length) 
+              {queryHistory?.queries?.length ?
+                Math.round(queryHistory.queries.reduce((acc, q) => acc + (q.executionTime || 0), 0) / queryHistory.queries.length)
                 : 0}ms
             </div>
             <p className="text-xs text-muted-foreground">
@@ -178,9 +179,8 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {recentQueries.map((query) => (
                   <div key={query.id} className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      query.isSuccessful ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
+                    <div className={`w-2 h-2 rounded-full mt-2 ${query.isSuccessful ? 'bg-green-500' : 'bg-red-500'
+                      }`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-900 truncate">
                         {query.naturalLanguageQuery}

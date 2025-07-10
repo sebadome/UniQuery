@@ -6,17 +6,19 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    // Solo redirige si está cargado y no autenticado, y no estás ya en /login
+    if (!isLoading && !isAuthenticated && location !== '/login') {
       setLocation('/login');
     }
-  }, [isAuthenticated, isLoading, setLocation]);
+  }, [isAuthenticated, isLoading, setLocation, location]);
 
   if (isLoading) {
+    // Spinner básico (puedes poner un componente propio de loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -25,8 +27,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
+    // Mientras redirige, no muestra nada
     return null;
   }
 
+  // Si está autenticado, renderiza los children (la ruta privada)
   return <>{children}</>;
-}
+};

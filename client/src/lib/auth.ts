@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'auth_token';
+/* const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
 export interface User {
@@ -49,3 +49,4 @@ export const getAuthHeaders = (): Record<string, string> => {
   const token = authStorage.getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+ */

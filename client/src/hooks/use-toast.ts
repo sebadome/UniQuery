@@ -5,6 +5,7 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
+// Puedes subir este límite si quieres mostrar más de un toast simultáneo
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000
 
@@ -90,8 +91,7 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
+      // Side effects: agrega a la cola de eliminación
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {

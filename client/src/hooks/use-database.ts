@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { databaseApi, type DatabaseConnection } from '@/lib/api';
+import { useState, useEffect, useCallback } from 'react';
+import { databaseApi, type DatabaseConnection } from '@/lib/databaseApi';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 export interface DatabaseState {
   connections: DatabaseConnection[];
@@ -18,21 +19,34 @@ export function useDatabase() {
   });
 
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const [jwt, setJwt] = useState<string | null>(null);
 
+  // Obtén el JWT al autenticarse el usuario
   useEffect(() => {
-    loadConnections();
-  }, []);
+    const getToken = async () => {
+      if (isAuthenticated) {
+        const { supabase } = await import("@/lib/supabaseClient");
+        const { data } = await supabase.auth.getSession();
+        setJwt(data?.session?.access_token || null);
+      } else {
+        setJwt(null);
+      }
+    };
+    getToken();
+  }, [isAuthenticated]);
 
-  const loadConnections = async () => {
+  // Carga todas las conexiones y la activa
+  const loadConnections = useCallback(async () => {
+    if (!jwt) return;
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      const response = await databaseApi.getConnections();
-      
-      const activeConnection = response.connections.find(conn => conn.isActive) || null;
-      
+      const connections = await databaseApi.getConnections(jwt);
+      const activeConnection = connections.find((conn: any) => conn.isActive) || null;
+
       setState(prev => ({
         ...prev,
-        connections: response.connections,
+        connections,
         activeConnection,
         isConnected: !!activeConnection,
         isLoading: false,
@@ -40,25 +54,23 @@ export function useDatabase() {
     } catch (error) {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  };
+  }, [jwt]);
 
-  const testConnection = async (connectionData: {
-    type: string;
-    host: string;
-    port: number;
-    database: string;
-    username: string;
-    password: string;
-    name: string;
-  }): Promise<boolean> => {
+  useEffect(() => {
+    if (jwt) loadConnections();
+  }, [jwt, loadConnections]);
+
+  // Prueba de conexión
+  const testConnection = useCallback(async (
+    connectionData: Omit<DatabaseConnection, 'id' | 'created_at'> & { password: string }
+  ): Promise<boolean> => {
+    if (!jwt) return false;
     try {
-      await databaseApi.testConnection(connectionData);
-      
+      await databaseApi.testConnection(connectionData, jwt);
       toast({
         title: "¡Conexión exitosa!",
         description: "La prueba de conexión a la base de datos fue exitosa",
       });
-      
       return true;
     } catch (error: any) {
       toast({
@@ -66,103 +78,107 @@ export function useDatabase() {
         description: error.message || "No se pudo conectar a la base de datos",
         variant: "destructive",
       });
-      
       return false;
     }
-  };
+  }, [jwt, toast]);
 
-  const connect = async (connectionData: {
-    type: string;
-    host: string;
-    port: number;
-    database: string;
-    username: string;
-    password: string;
-    name: string;
-  }): Promise<boolean> => {
+  // Guardar conexión (NO la activa, solo guarda)
+  const connect = useCallback(async (
+    connectionData: Omit<DatabaseConnection, 'id' | 'created_at'> & { password: string }
+  ): Promise<boolean> => {
+    if (!jwt) return false;
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      
-      const response = await databaseApi.connect(connectionData);
-      
-      // Immediately update state with the connection
-      const newConnection = { ...response.connection, isActive: true };
+      const response = await databaseApi.createConnection(connectionData, jwt);
+
+      toast({
+        title: "Conexión guardada",
+        description: `Parámetros guardados para ${response.database}`,
+      });
+
+      loadConnections();
+
       setState(prev => ({
         ...prev,
-        connections: [...prev.connections.filter(c => c.id !== newConnection.id), newConnection],
-        activeConnection: newConnection,
-        isConnected: true,
         isLoading: false,
       }));
 
-      toast({
-        title: "Base de datos conectada!",
-        description: `Conectado a ${response.connection.database}`,
-      });
-
-      // Force re-render by reloading connections after a short delay
-      setTimeout(() => {
-        loadConnections();
-      }, 500);
-      
       return true;
     } catch (error: any) {
       setState(prev => ({ ...prev, isLoading: false }));
-      
       toast({
-        title: "Conexión fallida",
-        description: error.message || "No se pudo conectar a la base de datos",
+        title: "Error al guardar",
+        description: error.message || "No se pudo guardar la conexión",
         variant: "destructive",
       });
-      
       return false;
     }
-  };
+  }, [jwt, toast, loadConnections]);
 
-  const disconnect = async (connectionId: number): Promise<boolean> => {
+  // Activar conexión ya guardada
+  const activateConnection = useCallback(async (connectionId: string) => {
+    if (!jwt) return;
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
-      
-      await databaseApi.disconnect(connectionId);
-      
-      // Update connections list immediately by setting isActive to false
-      setState(prev => ({
-        ...prev,
-        connections: prev.connections.map(conn => 
-          conn.id === connectionId ? { ...conn, isActive: false } : conn
-        ),
-        activeConnection: null,
-        isConnected: false,
-        isLoading: false,
-      }));
-
+      await databaseApi.activateConnection(connectionId, jwt);
       toast({
-        title: "Base de datos desconectada",
-        description: "La conexión se ha desconectado exitosamente",
+        title: "¡Conectado!",
+        description: "Conexión activada correctamente.",
       });
-
-      // Trigger a global refresh to update all components
-      window.dispatchEvent(new CustomEvent('database-disconnected'));
-      
-      return true;
+      loadConnections();
     } catch (error: any) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      
+      toast({
+        title: "Error al conectar",
+        description: error.message || "No se pudo activar la conexión",
+        variant: "destructive",
+      });
+    }
+  }, [jwt, toast, loadConnections]);
+
+  // Desactivar conexión activa
+  const deactivateConnection = useCallback(async () => {
+    if (!jwt) return;
+    try {
+      await databaseApi.deactivateConnection(jwt);
+      toast({
+        title: "Desconectado",
+        description: "La conexión ha sido desactivada.",
+      });
+      loadConnections();
+    } catch (error: any) {
       toast({
         title: "Error al desconectar",
-        description: error.message || "No se pudo desconectar la base de datos",
+        description: error.message || "No se pudo desconectar",
         variant: "destructive",
       });
-      
-      return false;
     }
-  };
+  }, [jwt, toast, loadConnections]);
+
+  // Eliminar una conexión guardada
+  const removeConnection = useCallback(async (connectionId: string) => {
+    if (!jwt) return;
+    try {
+      await databaseApi.deleteConnection(connectionId, jwt);
+      toast({
+        title: "Conexión eliminada",
+        description: "La conexión fue eliminada correctamente.",
+      });
+      loadConnections();
+    } catch (error: any) {
+      toast({
+        title: "Error al eliminar",
+        description: error.message || "No se pudo eliminar la conexión",
+        variant: "destructive",
+      });
+    }
+  }, [jwt, toast, loadConnections]);
 
   return {
     ...state,
     testConnection,
     connect,
-    disconnect,
+    activateConnection,
+    deactivateConnection,
+    removeConnection,
     refreshConnections: loadConnections,
   };
 }
