@@ -18,14 +18,14 @@ import Account from "@/pages/Account";
 import Help from "@/pages/Help";
 import NotFound from "@/pages/not-found";
 
-// Layout principal: altura total, sin padding
+// Layout principal: altura total de la pantalla, solo el contenedor raíz usa h-screen
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   return (
     <DatabaseProvider>
       <div className="flex h-screen min-h-0 bg-slate-50">
         <Sidebar />
-        {/* main: sin p-8, solo flex, altura completa */}
-        <main className="flex-1 flex flex-col min-h-0 h-screen">
+        {/* main: NO debe usar h-screen, solo min-h-0 y flex-1 */}
+        <main className="flex-1 flex flex-col min-h-0">
           {children}
         </main>
       </div>
@@ -95,16 +95,17 @@ function Router() {
       <Route path="/chat">
         <ProtectedRoute>
           <AuthenticatedLayout>
-            <div className="flex flex-col flex-1 min-h-0 h-full">
-              {/* Header del chat con padding */}
-              <div className="pt-4 pb-2 px-8">
+            {/* Chat de consultas: ocupa todo el espacio disponible del layout */}
+            <div className="flex flex-col flex-1 min-h-0 w-full">
+              {/* Header del chat: fijo arriba */}
+              <div className="pt-4 pb-2 px-8 flex-shrink-0">
                 <h1 className="text-3xl font-bold tracking-tight">Chat de Consultas</h1>
                 <p className="text-muted-foreground">
                   Haz preguntas sobre tu base de datos en lenguaje natural
                 </p>
               </div>
-              {/* Chat ocupa todo el espacio restante */}
-              <div className="flex-1 min-h-0 flex flex-col">
+              {/* Chat (scrolleable solo el contenido) */}
+              <div className="flex-1 min-h-0 flex flex-col w-full">
                 <Chat />
               </div>
             </div>

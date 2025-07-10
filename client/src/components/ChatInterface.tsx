@@ -46,6 +46,7 @@ export function ChatInterface() {
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
+  // Obtener nombres de tabla
   useEffect(() => {
     if (isConnected) {
       databaseApi.getTableNames()
@@ -100,7 +101,7 @@ export function ChatInterface() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
 
-  // SCROLL SIEMPRE ABAJO cuando cambian los mensajes:
+  // Scroll automático de mensajes
   useEffect(() => {
     const el = messagesContainerRef.current;
     if (el) {
@@ -108,6 +109,7 @@ export function ChatInterface() {
     }
   }, [messages]);
 
+  // --- MUTATION ---
   const sendMessageMutation = useMutation({
     mutationFn: async (payload: { question: string, table: string }) => {
       return await databaseApi.askLLMQuestion({
@@ -117,7 +119,6 @@ export function ChatInterface() {
       });
     },
     onSuccess: (data) => {
-      // Maneja respuesta tipo info (saludo, sin datos)
       if (data.info) {
         const assistantMessage: ChatMessage = {
           id: `assistant-info-${Date.now()}`,
@@ -130,12 +131,9 @@ export function ChatInterface() {
         setShowChartMsgId(null);
         return;
       }
-
       let answerContent: string | string[] = data.answer || 'Consulta realizada correctamente.';
       let columns = data.columns || undefined;
       let rows = data.rows || undefined;
-
-      // Conversión a lista si es respuesta tipo lista
       if (!columns && typeof answerContent === "string") {
         const lines = answerContent.split('\n').map(l => l.trim()).filter(Boolean);
         if (
@@ -294,7 +292,7 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 w-full">
       {/* Chat Header */}
       <div className="border-b border-slate-200 p-4 flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -349,188 +347,173 @@ export function ChatInterface() {
         )}
       </div>
 
-      {/* Mensajes del chat */}
-      <div className="flex-1 min-h-0 relative">
-        <div
-          ref={messagesContainerRef}
-          className="overflow-y-auto flex-1 min-h-0 px-4 py-4"
-          style={{
-            maxHeight: '100%',
-            minHeight: '200px',
-          }}
-        >
-          <div className="space-y-4 max-w-4xl mx-auto min-h-[200px]">
-            {messages.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Bot className="h-8 w-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Inicia una Conversación</h3>
-                <p className="text-muted-foreground mb-6">
-                  Haz preguntas sobre tu base de datos en español. ¡Las convertiré a SQL y obtendré tus respuestas!
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
-                  {quickSuggestions.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      onClick={() => setMessage(suggestion)}
-                      className="text-left h-auto p-3 whitespace-normal"
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
+      {/* Mensajes del chat (SOLO ESTA ÁREA SCROLLEA) */}
+      <div className="flex-1 min-h-0 w-full relative overflow-y-auto" ref={messagesContainerRef}>
+        <div className="space-y-4 max-w-4xl mx-auto min-h-[200px] px-4 py-4">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Bot className="h-8 w-8 text-blue-600" />
               </div>
-            )}
+              <h3 className="text-lg font-semibold mb-2">Inicia una Conversación</h3>
+              <p className="text-muted-foreground mb-6">
+                Haz preguntas sobre tu base de datos en español. ¡Las convertiré a SQL y obtendré tus respuestas!
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                {quickSuggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    onClick={() => setMessage(suggestion)}
+                    className="text-left h-auto p-3 whitespace-normal"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`max-w-3xl ${msg.type === 'user' ? 'ml-12' : 'mr-12'}`}>
-                  <div className="flex items-start space-x-3">
-                    {msg.type === 'assistant' && (
-                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <Bot className="h-4 w-4 text-white" />
-                      </div>
-                    )}
-
-                    <div className="flex-1">
-                      <div
-                        className={`rounded-lg p-4 ${
-                          msg.type === 'user'
-                            ? 'bg-primary text-primary-foreground ml-auto'
-                            : 'bg-muted'
-                        }`}
-                      >
-                        {/* --- Mensaje tipo INFO (saludo, sin datos ni tablas ni gráfico) --- */}
-                        {msg.type === 'assistant' && msg.info ? (
-                          <div>{msg.info}</div>
-                        ) : msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) && msg.columns.length > 1 ? (
-                          <div>
-                            {/* Explicación amigable */}
-                            {typeof msg.content === 'string' && msg.content.length > 0 && (
-                              <div className="mb-2">{msg.content}</div>
-                            )}
-                            <Button
-                              size="sm"
-                              className="mb-2"
-                              variant={showChartMsgId === msg.id ? 'secondary' : 'outline'}
-                              onClick={() => setShowChartMsgId(showChartMsgId === msg.id ? null : msg.id)}
-                            >
-                              <BarChart3 className="w-4 h-4 mr-1" />
-                              {showChartMsgId === msg.id ? 'Ocultar gráfico' : 'Ver gráfico'}
-                            </Button>
-                            {showChartMsgId === msg.id && (
-                              <ResultChart columns={msg.columns} rows={msg.rows} />
-                            )}
-                            <CollapsibleResultTable columns={msg.columns} rows={msg.rows} />
-                          </div>
-                        ) : msg.type === 'assistant' && Array.isArray(msg.content) && msg.content.length > 5 ? (
-                          <CollapsibleValueList values={msg.content} />
-                        ) : (
-                          <p className="whitespace-pre-wrap">{Array.isArray(msg.content) ? msg.content.join('\n') : msg.content}</p>
-                        )}
-
-                        {/* Badge de tiempo de ejecución solo si NO es info */}
-                        {msg.type === 'assistant' && msg.executionTime && !msg.info && (
-                          <div className="mt-2 pt-2 border-t border-muted-foreground/20">
-                            <Badge variant="secondary" className="text-xs">
-                              Ejecutado en {msg.executionTime}ms
-                            </Badge>
-                          </div>
-                        )}
-                        {/* Mostrar ID Log solo si assistant y no info */}
-                        {msg.type === 'assistant' && msg.queryLogId && !msg.info && (
-                          <div className="mt-1">
-                            <span className="text-[11px] text-muted-foreground select-all">
-                              <b>ID Log:</b> {msg.queryLogId}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Acciones para mensajes assistant */}
-                      {msg.type === 'assistant' && !msg.info && (
-                        <div className="flex items-center space-x-2 mt-2">
-                          <span className="text-xs text-muted-foreground">
-                            {msg.timestamp.toLocaleTimeString()}
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-3xl ${msg.type === 'user' ? 'ml-12' : 'mr-12'}`}>
+                <div className="flex items-start space-x-3">
+                  {msg.type === 'assistant' && (
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div
+                      className={`rounded-lg p-4 ${
+                        msg.type === 'user'
+                          ? 'bg-primary text-primary-foreground ml-auto'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      {/* --- Mensaje tipo INFO (saludo, sin datos ni tablas ni gráfico) --- */}
+                      {msg.type === 'assistant' && msg.info ? (
+                        <div>{msg.info}</div>
+                      ) : msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) && msg.columns.length > 1 ? (
+                        <div>
+                          {/* Explicación amigable */}
+                          {typeof msg.content === 'string' && msg.content.length > 0 && (
+                            <div className="mb-2">{msg.content}</div>
+                          )}
+                          <Button
+                            size="sm"
+                            className="mb-2"
+                            variant={showChartMsgId === msg.id ? 'secondary' : 'outline'}
+                            onClick={() => setShowChartMsgId(showChartMsgId === msg.id ? null : msg.id)}
+                          >
+                            <BarChart3 className="w-4 h-4 mr-1" />
+                            {showChartMsgId === msg.id ? 'Ocultar gráfico' : 'Ver gráfico'}
+                          </Button>
+                          {showChartMsgId === msg.id && (
+                            <ResultChart columns={msg.columns} rows={msg.rows} />
+                          )}
+                          <CollapsibleResultTable columns={msg.columns} rows={msg.rows} />
+                        </div>
+                      ) : msg.type === 'assistant' && Array.isArray(msg.content) && msg.content.length > 5 ? (
+                        <CollapsibleValueList values={msg.content} />
+                      ) : (
+                        <p className="whitespace-pre-wrap">{Array.isArray(msg.content) ? msg.content.join('\n') : msg.content}</p>
+                      )}
+                      {/* Badge de tiempo de ejecución solo si NO es info */}
+                      {msg.type === 'assistant' && msg.executionTime && !msg.info && (
+                        <div className="mt-2 pt-2 border-t border-muted-foreground/20">
+                          <Badge variant="secondary" className="text-xs">
+                            Ejecutado en {msg.executionTime}ms
+                          </Badge>
+                        </div>
+                      )}
+                      {/* Mostrar ID Log solo si assistant y no info */}
+                      {msg.type === 'assistant' && msg.queryLogId && !msg.info && (
+                        <div className="mt-1">
+                          <span className="text-[11px] text-muted-foreground select-all">
+                            <b>ID Log:</b> {msg.queryLogId}
                           </span>
-                          {msg.sqlQuery && (
+                        </div>
+                      )}
+                    </div>
+                    {/* Acciones para mensajes assistant */}
+                    {msg.type === 'assistant' && !msg.info && (
+                      <div className="flex items-center space-x-2 mt-2">
+                        <span className="text-xs text-muted-foreground">
+                          {msg.timestamp.toLocaleTimeString()}
+                        </span>
+                        {msg.sqlQuery && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleShowSql(msg.sqlQuery!)}
+                            className="text-xs h-6"
+                          >
+                            <Code className="h-3 w-3 mr-1" />
+                            Ver SQL
+                          </Button>
+                        )}
+                        {msg.queryLogId && (
+                          <div className="flex space-x-1">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleShowSql(msg.sqlQuery!)}
-                              className="text-xs h-6"
+                              onClick={() => handleFeedback(msg.queryLogId!)}
+                              className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
                             >
-                              <Code className="h-3 w-3 mr-1" />
-                              Ver SQL
+                              <ThumbsUp className="h-3 w-3" />
                             </Button>
-                          )}
-                          {msg.queryLogId && (
-                            <div className="flex space-x-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleFeedback(msg.queryLogId!)}
-                                className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
-                              >
-                                <ThumbsUp className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleFeedback(msg.queryLogId!)}
-                                className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
-                              >
-                                <ThumbsDown className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {msg.type === 'user' && (
-                        <div className="flex justify-end mt-2">
-                          <span className="text-xs text-muted-foreground">
-                            {msg.timestamp.toLocaleTimeString()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleFeedback(msg.queryLogId!)}
+                              className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                            >
+                              <ThumbsDown className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {msg.type === 'user' && (
-                      <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center flex-shrink-0">
-                        <User className="h-4 w-4 text-slate-600" />
+                      <div className="flex justify-end mt-2">
+                        <span className="text-xs text-muted-foreground">
+                          {msg.timestamp.toLocaleTimeString()}
+                        </span>
                       </div>
                     )}
                   </div>
+                  {msg.type === 'user' && (
+                    <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="h-4 w-4 text-slate-600" />
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-
-            {sendMessageMutation.isPending && (
-              <div className="flex justify-start">
-                <div className="max-w-3xl mr-12">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 text-white animate-spin" />
-                    </div>
-                    <div className="bg-muted rounded-lg p-4">
-                      <p className="text-muted-foreground">Analizando tu consulta...</p>
-                    </div>
+            </div>
+          ))}
+          {sendMessageMutation.isPending && (
+            <div className="flex justify-start">
+              <div className="max-w-3xl mr-12">
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <Loader2 className="h-4 w-4 text-white animate-spin" />
+                  </div>
+                  <div className="bg-muted rounded-lg p-4">
+                    <p className="text-muted-foreground">Analizando tu consulta...</p>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Message Input */}
-      <div className="border-t border-slate-200 p-4 flex-shrink-0 bg-background">
+      {/* Message Input (siempre FIJO ABAJO) */}
+      <div className="border-t border-slate-200 p-4 flex-shrink-0 bg-background w-full">
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
           <div className="flex space-x-3">
             <Input

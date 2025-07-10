@@ -8,7 +8,7 @@ import {
 } from "chart.js";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// --- SVG Thumbnails para tipos de gráfico (opcional, mejora UX) ---
+// --- SVG Thumbnails para tipos de gráfico ---
 const chartThumbnails: Record<string, JSX.Element> = {
   bar:   <svg width="34" height="18"><rect x="3" y="8" width="3" height="7" fill="#60a5fa"/><rect x="10" y="4" width="3" height="11" fill="#60a5fa"/><rect x="17" y="1" width="3" height="14" fill="#60a5fa"/><rect x="24" y="11" width="3" height="4" fill="#60a5fa"/></svg>,
   line:  <svg width="34" height="18"><polyline points="3,15 10,12 17,4 24,10" fill="none" stroke="#34d399" strokeWidth="2"/><circle cx="3" cy="15" r="1.5" fill="#34d399"/><circle cx="10" cy="12" r="1.5" fill="#34d399"/><circle cx="17" cy="4" r="1.5" fill="#34d399"/><circle cx="24" cy="10" r="1.5" fill="#34d399"/></svg>,
@@ -43,14 +43,12 @@ function isDate(value: string) {
   return /^\d{4}-\d{2}-\d{2}/.test(value) || /^\d{2}\/\d{2}\/\d{4}/.test(value);
 }
 
-// Paleta de colores para datasets
 const colorPalette = [
   "#4F46E5", "#10B981", "#F59E42", "#EF4444", "#6366F1",
   "#FBBF24", "#14B8A6", "#D946EF", "#F43F5E", "#A3E635",
   "#3B82F6", "#0EA5E9", "#E11D48", "#7C3AED", "#65A30D"
 ];
 
-// --- Sugerir tipo de gráfico ---
 function suggestChartType({
   xCol, yCols, columns, rows,
 }: {
@@ -78,10 +76,20 @@ function suggestChartType({
   return "bar";
 }
 
+// Sugerencia de tipo de dato recomendada por gráfico (thumb)
+const recommendedData: Record<ChartType, string> = {
+  bar: "Categorías (texto) vs. valores numéricos",
+  line: "Fechas (serie temporal) vs. valores numéricos",
+  area: "Fechas vs. valores numéricos (área bajo curva)",
+  pie: "Pocas categorías y valores numéricos",
+  doughnut: "Pocas categorías y valores numéricos",
+  scatter: "Dos variables numéricas (XY)"
+};
+
 function getSuggestionReason(type: ChartType, xCol: string, yCols: string[], labels: any[], yVals: any[][]) {
   if (type === "line" && yCols.length === 1) return "Se sugiere gráfico de líneas porque el eje X parece una serie temporal (fechas).";
   if (type === "bar" && yCols.length === 1) return "Se sugiere gráfico de barras porque el eje X es categórico y el eje Y es numérico.";
-  if ((type === "pie" || type === "doughnut") && yCols.length === 1) return "Se sugiere gráfico de torta porque hay pocos valores distintos y todos son numéricos.";
+  if ((type === "pie" || type === "doughnut") && yCols.length === 1) return "Se sugiere gráfico de torta/donut porque hay pocos valores distintos y todos son numéricos.";
   if (type === "scatter" && yCols.length === 1) return "Se sugiere gráfico de dispersión porque ambos ejes seleccionados son numéricos.";
   if (type === "line" && yCols.length > 1) return "Se sugiere gráfico de líneas múltiples para comparar varias variables numéricas por fechas.";
   if (type === "bar" && yCols.length > 1) return "Se sugiere gráfico de barras agrupadas para comparar varias variables numéricas por categoría.";
@@ -267,13 +275,16 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
-                  <div className="text-xs capitalize">
+                  <div className="text-xs capitalize font-semibold mb-1">
                     {type === "bar" && "Comparar valores por categoría"}
                     {type === "line" && "Evolución temporal o tendencia"}
                     {type === "area" && "Evolución temporal (área bajo la curva)"}
                     {type === "pie" && "Proporción o porcentaje del total"}
                     {type === "doughnut" && "Proporción tipo doughnut"}
                     {type === "scatter" && "Relación entre dos variables numéricas"}
+                  </div>
+                  <div className="text-xs mb-1">
+                    <b>Tipo de datos recomendado:</b> {recommendedData[type]}
                   </div>
                   {!isChartTypeEnabled(type) && (
                     <div className="mt-1 text-xs text-orange-700">
