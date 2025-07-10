@@ -1590,3 +1590,90 @@ Esto es útil para entender cómo están distribuidas las opciones de productos 
 2025-07-10 18:12:34,892 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 [2025-07-10 18:12:34] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que realizaste te muestra cuántas variedades diferentes hay dentro de cada categoría. Por ejemplo, en la categoría "CAT I" hay varias variedades, mientras que en "CAT I CALIBR" y "CAT II" también hay algunas, pero menos en comparación. Esto te permite ver la diversidad de variedades que existen dentro de cada categoría específica.
 2025-07-10 18:12:35,163 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 133
+2025-07-10 18:14:50,071 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:14:50,438 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:14:53,060 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:14:53,562 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 18:14:59] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 18:14:59] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 18:14:59] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:15:01,342 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:15:01] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 18:15:01] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 18:15:01,625 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 134
+[2025-07-10 18:15:41] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas hay?
+[2025-07-10 18:15:41] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay? | Pregunta humana recibida.
+[2025-07-10 18:15:41] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay? | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:15:43,809 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:15:43] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';",
+  "table": [["count"], [57]],
+  "message": "La tabla 'PROCESOS_ACT' tiene 57 columnas."
+}
+[2025-07-10 18:15:43] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay? | SQL generado: SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';
+2025-07-10 18:15:45,244 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:15:45] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla llamada "PROCESOS_ACT" tiene un total de 61 columnas diferentes. Esto significa que hay 61 tipos de información o categorías de datos que se pueden almacenar en esta tabla.
+2025-07-10 18:15:45,558 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 135
+2025-07-10 18:19:49,794 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:19:50,192 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:19:51,922 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:19:52,854 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:19:53,288 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 18:19:57] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 18:19:57] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 18:19:57] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:20:00,759 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:20:00] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 18:20:00] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 18:20:01,046 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 136
+[2025-07-10 18:20:08] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas tiene?
+[2025-07-10 18:20:08] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Pregunta humana recibida.
+[2025-07-10 18:20:08] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:20:10,683 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:20:10] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';",
+  "message": "La consulta devuelve el número total de columnas en la tabla 'PROCESOS_ACT'."
+}
+[2025-07-10 18:20:10] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | SQL generado: SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';
+2025-07-10 18:20:12,726 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:20:12] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla "PROCESOS_ACT" tiene un total de 61 columnas. Esto significa que hay 61 tipos diferentes de información que se pueden almacenar para cada registro en esta tabla.
+2025-07-10 18:20:12,983 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 137
+[2025-07-10 18:20:24] Usuario: sdomenechp@gmail.com | Pregunta: cuantos registros tiene?
+[2025-07-10 18:20:24] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene? | Pregunta humana recibida.
+[2025-07-10 18:20:24] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene? | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:20:26,321 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:20:26] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM PROCESOS_ACT;",
+  "message": "Esta consulta cuenta el número total de registros en la tabla PROCESOS_ACT."
+}
+[2025-07-10 18:20:26] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene? | SQL generado: SELECT COUNT(*) FROM PROCESOS_ACT;
+2025-07-10 18:20:27,332 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:20:27] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que realizaste te dice cuántos registros hay en la tabla de procesos activos. En este caso, hay un total de 376,987 registros. Esto significa que hay 376,987 procesos activos registrados en tu base de datos.
+2025-07-10 18:20:27,606 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 138
+[2025-07-10 18:20:48] Usuario: sdomenechp@gmail.com | Pregunta: entregame la cantidad de variedades por categoria
+[2025-07-10 18:20:48] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Pregunta humana recibida.
+[2025-07-10 18:20:48] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Prompt enviado a OpenAI (system/user)
+2025-07-10 18:21:02,011 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:21:02] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Respuesta cruda: {
+  "sql_query": "SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;",
+  "table": [
+    ["DES_CATEGORIAREAL", "cantidad_variedades"],
+    ["Categoria1", 5],
+    ["Categoria2", 8],
+    ["Categoria3", 3]
+  ],
+  "chart": {
+    "type": "bar",
+    "labels": ["Categoria1", "Categoria2", "Categoria3"],
+    "values": [5, 8, 3]
+  },
+  "message": "La consulta muestra la cantidad de variedades distintas de fruta por cada categoría registrada en los procesos actuales."
+}
+[2025-07-10 18:21:02] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | SQL generado: SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;
+2025-07-10 18:21:04,500 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 18:21:04] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que realizaste te muestra cuántas variedades diferentes hay dentro de cada categoría. Por ejemplo, en la categoría "CAT I" hay varias variedades, mientras que en "CAT I CALIBR" y "CAT II" también hay algunas, pero en menor cantidad. Esto te permite ver la diversidad de productos o elementos que tienes en cada categoría específica.
+2025-07-10 18:21:04,766 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 139

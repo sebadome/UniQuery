@@ -29,6 +29,23 @@ def get_current_date() -> str:
     """Devuelve la fecha actual en formato DD/MM/AAAA."""
     return datetime.now().strftime("%d/%m/%Y")
 
+# --------- Ayudante para detectar preguntas de conteo de columnas ----------
+def is_count_columns_question(question: str) -> Optional[str]:
+    """
+    Detecta si la pregunta es sobre el número de columnas en una tabla y extrae el nombre de la tabla.
+    Retorna el nombre de la tabla si aplica, si no retorna None.
+    """
+    import re
+    patrones = [
+        r"(?:cu[aá]ntas?|n[uú]mero de) columnas (?:tiene|hay en) (?:la tabla )?'?(\w+)'?",
+        r"columnas de (?:la tabla )?'?(\w+)'?"
+    ]
+    for pat in patrones:
+        match = re.search(pat, question, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    return None
+
 def call_openai_generate_sql(
     question: str,
     schema: str,
@@ -68,6 +85,30 @@ def call_openai_generate_sql(
             + "\n".join(dict_lines)
             + "\n</diccionario_de_datos>"
         )
+
+    # ----------- PATRÓN: pregunta sobre el número de columnas de una tabla -----------
+    table_for_count = is_count_columns_question(question)
+    if table_for_count:
+        # Construye la consulta SQL correcta dependiendo de la base de datos
+        if db_type.lower() in ("postgres", "postgresql"):
+            sql_query = (
+                f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_for_count}';"
+            )
+        elif db_type.lower() == "sqlserver":
+            sql_query = (
+                f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_for_count}';"
+            )
+        else:
+            sql_query = (
+                f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_for_count}';"
+            )
+        meta = {
+            "sql_query": sql_query,
+            "force_count_columns_message": True,
+            "table_name": table_for_count,
+            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de columnas"
+        }
+        return sql_query, meta
 
     # ---------- PROMPT LLM (ESPAÑOL, robusto para gráficos y JSON estructurado) ----------
     system_message = f"""
@@ -111,30 +152,6 @@ IMPORTANTE:
 - Si el usuario **no menciona una tabla**, asume que debe usarse la tabla seleccionada: '{dictionary_table}'.
 - Prohíbe consultas peligrosas (DELETE, DROP, ALTER, TRUNCATE, UPDATE, INSERT, CREATE, REPLACE, GRANT, REVOKE, EXEC, COMMIT, ROLLBACK).
 
-Ejemplo 1 (respuesta de barras):
-{{
-  "sql_query": "SELECT categoria, COUNT(*) as cantidad FROM productos GROUP BY categoria;",
-  "table": [["categoria", "cantidad"], ["Fruta", 20], ["Verdura", 14], ["Cereal", 6]],
-  "chart": {{
-    "type": "bar",
-    "labels": ["Fruta", "Verdura", "Cereal"],
-    "values": [20, 14, 6]
-  }},
-  "message": "Se muestra la cantidad de productos agrupados por categoría."
-}}
-
-Ejemplo 2 (respuesta de línea/serie de tiempo):
-{{
-  "sql_query": "SELECT fecha, SUM(ventas) as total_ventas FROM ventas GROUP BY fecha ORDER BY fecha;",
-  "table": [["fecha", "total_ventas"], ["2024-07-01", 1000], ["2024-07-02", 1100]],
-  "chart": {{
-    "type": "line",
-    "labels": ["2024-07-01", "2024-07-02"],
-    "values": [1000, 1100]
-  }},
-  "message": "Evolución diaria de las ventas."
-}}
-
 Hoy es {get_current_date()}.
 
 {dict_msg}
@@ -157,7 +174,7 @@ Hoy es {get_current_date()}.
                 {"role": "user", "content": user_message},
             ],
             max_tokens=800,
-            temperature=0.1,  # <-- Valor profesional recomendado para evitar invención
+            temperature=0.1,
             response_format={"type": "json_object"}
         )
         t1 = time.time()
@@ -188,7 +205,6 @@ Hoy es {get_current_date()}.
 
     try:
         resp_json = json.loads(content)
-        # --- Seguridad: bloqueo de queries peligrosas ---
         if "sql_query" in resp_json:
             sql_gen = resp_json["sql_query"].strip().lower()
             if any(word in sql_gen for word in ["delete", "drop", "alter", "truncate", "update", "insert", "create", "replace", "grant", "revoke", "exec", "commit", "rollback"]):
@@ -198,7 +214,7 @@ Hoy es {get_current_date()}.
             return str(resp_json["sql_query"]), resp_json
         elif "info" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Mensaje informativo del LLM: {resp_json['info']}")
-            return None, resp_json  # <-- Aquí se retorna el JSON de info, no error
+            return None, resp_json
         elif "error" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | LLM error: {resp_json['error']}")
             return None, {"error": str(resp_json["error"])}
@@ -208,6 +224,7 @@ Hoy es {get_current_date()}.
     except Exception as e:
         append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Error parseando respuesta LLM: {e} - Content: {content}")
         return None, {"error": "La respuesta del modelo no es válida. Intenta nuevamente."}
+
 
 def call_openai_explain_answer(
     question: str,
@@ -249,7 +266,7 @@ Responde SOLO con la explicación clara y en español.
             model="gpt-4o",
             messages=[{"role": "system", "content": system_message}],
             max_tokens=256,
-            temperature=0.2,  # Opcional, puedes usar 0.2 aquí para explicaciones consistentes
+            temperature=0.2,
         )
         t1 = time.time()
         elapsed_ms = int((t1 - t0) * 1000)
