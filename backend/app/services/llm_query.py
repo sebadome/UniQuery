@@ -39,7 +39,7 @@ def call_openai_generate_sql(
     return_metadata: bool = False
 ) -> Tuple[Optional[str], Dict[str, Any]]:
     """
-    Envía una pregunta al modelo LLM para generar una consulta SQL segura.
+    Envía una pregunta al modelo LLM para generar una consulta SQL segura y la estructura visual asociada.
     Retorna:
         (sql_query (str | None), metadata (dict))
         Si solo se trata de saludo/presentación, retorna (None, meta) con clave "info".
@@ -69,25 +69,77 @@ def call_openai_generate_sql(
             + "\n</diccionario_de_datos>"
         )
 
-    # PROMPT LLM
+    # ---------- PROMPT LLM (ESPAÑOL, robusto para gráficos y JSON estructurado) ----------
     system_message = f"""
-Eres un asistente experto en transformar preguntas en lenguaje natural a consultas SQL SEGURAS.
-Utiliza el siguiente esquema de base de datos:{dict_msg}
+Eres un asistente experto en transformar preguntas en lenguaje natural a consultas SQL SEGURAS, y en sugerir la mejor visualización posible según los resultados.
+
+Siempre debes responder SOLO con un JSON estructurado, nunca con texto fuera del JSON.
+Estructura estándar de tu respuesta (incluir solo lo que aplica):
+
+{{
+  "sql_query": "Consulta SQL generada",
+  "table": [["Col1", "Col2"], ["valor1", "valor2"], ...],    // Matriz para mostrar tabla (cabecera + filas)
+  "list": ["valor1", "valor2", ...],                        // Solo si aplica lista simple
+  "chart": {{
+    "type": "bar|pie|line|doughnut|scatter",                // Tipo sugerido (elige el más adecuado)
+    "labels": ["etiqueta1", "etiqueta2", ...],              // Eje X/categorías/fechas
+    "values": [10, 20, ...]                                 // Eje Y/valores asociados
+  }},
+  "message": "Explicación corta y clara en español"
+}}
+
+- Usa solo estos tipos de gráficos en "chart.type": "bar", "pie", "line", "doughnut", "scatter"
+- Si la pregunta es de series de tiempo, usa preferentemente "line".
+- Si es agrupación/categoría, sugiere "bar", "pie" o "doughnut" según convenga.
+- Si es de correlación o pares de valores, sugiere "scatter".
+- El campo "chart" es opcional, solo inclúyelo si la consulta lo permite.
+- El campo "list" es opcional, solo si es relevante.
+- El campo "table" es opcional, pero siempre incluye si la respuesta es tabular.
+- El campo "message" SIEMPRE debe estar cuando haya datos, como explicación para un usuario no técnico.
+- Si la pregunta es solo un saludo o no tiene sentido para SQL, responde SOLO con este JSON (sin ningún otro campo):
+
+{{
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}}
+
+Ejemplo 1 (respuesta de barras):
+{{
+  "sql_query": "SELECT categoria, COUNT(*) as cantidad FROM productos GROUP BY categoria;",
+  "table": [["categoria", "cantidad"], ["Fruta", 20], ["Verdura", 14], ["Cereal", 6]],
+  "chart": {{
+    "type": "bar",
+    "labels": ["Fruta", "Verdura", "Cereal"],
+    "values": [20, 14, 6]
+  }},
+  "message": "Se muestra la cantidad de productos agrupados por categoría."
+}}
+
+Ejemplo 2 (respuesta de línea/serie de tiempo):
+{{
+  "sql_query": "SELECT fecha, SUM(ventas) as total_ventas FROM ventas GROUP BY fecha ORDER BY fecha;",
+  "table": [["fecha", "total_ventas"], ["2024-07-01", 1000], ["2024-07-02", 1100]],
+  "chart": {{
+    "type": "line",
+    "labels": ["2024-07-01", "2024-07-02"],
+    "values": [1000, 1100]
+  }},
+  "message": "Evolución diaria de las ventas."
+}}
+
+IMPORTANTE:
+- Nunca entregues texto fuera del JSON.
+- Usa nombres de tablas y campos EXACTAMENTE como aparecen en el esquema.
+- Si la pregunta requiere información sobre la estructura de la tabla (como cantidad o nombres de columnas/tablas), puedes usar tablas del sistema como information_schema.columns, information_schema.tables, sys.tables, pg_catalog.pg_tables, etc.
+- Si el usuario **no menciona una tabla**, asume que debe usarse la tabla seleccionada: '{dictionary_table}'.
+- Prohíbe consultas peligrosas (DELETE, DROP, ALTER, TRUNCATE, UPDATE, INSERT, CREATE, REPLACE, GRANT, REVOKE, EXEC, COMMIT, ROLLBACK).
+
+Hoy es {get_current_date()}.
+
+{dict_msg}
 
 <schema>
 {schema}
 </schema>
-
-Reglas de seguridad:
-- No generes NUNCA sentencias que alteren datos o la estructura: DELETE, DROP, ALTER, TRUNCATE, UPDATE, INSERT, CREATE, REPLACE, GRANT, REVOKE, EXEC, COMMIT, ROLLBACK.
-- Si la pregunta requiere información sobre la estructura de la tabla (como cantidad o nombres de columnas/tablas), puedes usar tablas del sistema como information_schema.columns, information_schema.tables, sys.tables, pg_catalog.pg_tables, etc.
-- Si el usuario **no menciona una tabla**, asume que debe usarse la tabla seleccionada: '{dictionary_table}'.
-- Si la pregunta es un saludo, una presentación, o no es relevante para SQL (ej: "hola", "quién eres", "cómo estás", "preséntate"), responde SOLO con este JSON:
-  {{"info": "¡Hola! Soy tu asistente inteligente UniQuery. Puedo responder consultas sobre tus datos. Por ejemplo: '¿Cuántos registros hay en la tabla ventas?' o 'Muestra las ventas del mes pasado'. ¡Hazme una pregunta sobre tu base de datos cuando quieras!"}}
-- Para todo lo demás, intenta generar la mejor consulta posible.
-- La respuesta debe ser SOLO el JSON: {{"sql_query": "SELECT ..."}}
-- Usa nombres de tablas y campos EXACTAMENTE como aparecen en el esquema.
-Hoy es {get_current_date()}.
 """
     user_message = question
 
@@ -102,7 +154,7 @@ Hoy es {get_current_date()}.
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message},
             ],
-            max_tokens=512,
+            max_tokens=800,
             response_format={"type": "json_object"}
         )
         t1 = time.time()
@@ -129,21 +181,21 @@ Hoy es {get_current_date()}.
         meta["tokens_completion"] = getattr(usage, "completion_tokens", None)
         meta["tokens_total"] = getattr(usage, "total_tokens", None)
 
-    meta["prompt_template_version"] = "v1.0"
+    meta["prompt_template_version"] = "v2.0-visual"
 
     try:
         resp_json = json.loads(content)
+        # --- Seguridad: bloqueo de queries peligrosas ---
         if "sql_query" in resp_json:
             sql_gen = resp_json["sql_query"].strip().lower()
             if any(word in sql_gen for word in ["delete", "drop", "alter", "truncate", "update", "insert", "create", "replace", "grant", "revoke", "exec", "commit", "rollback"]):
                 append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Query bloqueada por seguridad: {resp_json['sql_query']}")
                 return None, {"error": "Consulta no permitida por seguridad. (Intento de modificar datos)"}
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | SQL generado: {resp_json['sql_query']}")
-            return str(resp_json["sql_query"]), meta
+            return str(resp_json["sql_query"]), resp_json
         elif "info" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Mensaje informativo del LLM: {resp_json['info']}")
-            meta["info_message"] = resp_json["info"]
-            return None, meta
+            return None, resp_json  # <-- Aquí se retorna el JSON de info, no error
         elif "error" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | LLM error: {resp_json['error']}")
             return None, {"error": str(resp_json["error"])}

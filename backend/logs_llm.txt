@@ -963,3 +963,118 @@ Esto nos da una idea de la diversidad de productos que hay disponibles en cada g
 [2025-07-10 09:31:55] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
 2025-07-10 09:31:55,669 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 86
 2025-07-10 09:31:56,067 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 87
+2025-07-10 09:51:06,084 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:51:06,731 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:52:11,220 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:52:12,207 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 09:52:37] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 09:52:37] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 09:52:37] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 09:52:45,041 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 09:52:45] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 09:52:45] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 09:52:45,318 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 88
+2025-07-10 09:52:45,708 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 89
+2025-07-10 09:55:41,987 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:55:42,615 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:55:43,963 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 09:55:44,394 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 09:55:49] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 09:55:49] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 09:55:49] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 09:55:51,652 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 09:55:51] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 09:55:51] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 09:55:51,925 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 90
+2025-07-10 09:55:52,321 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 91
+2025-07-10 10:03:59,428 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:03:59,809 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:04:01,035 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:04:01,484 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 10:04:06] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 10:04:06] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 10:04:06] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 10:04:08,199 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:04:08] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 10:04:08] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 10:04:08,496 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 92
+[2025-07-10 10:04:24] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas hay en la tabla?
+[2025-07-10 10:04:24] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay en la tabla? | Pregunta humana recibida.
+[2025-07-10 10:04:24] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay en la tabla? | Prompt enviado a OpenAI (system/user)
+2025-07-10 10:04:26,411 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:04:26] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay en la tabla? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) as cantidad_columnas FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';",
+  "table": [["cantidad_columnas"], [62]],
+  "message": "La tabla PROCESOS_ACT tiene 62 columnas."
+}
+[2025-07-10 10:04:26] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas hay en la tabla? | SQL generado: SELECT COUNT(*) as cantidad_columnas FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';
+2025-07-10 10:04:28,110 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:04:28] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla "PROCESOS_ACT" tiene un total de 61 columnas. Esto significa que contiene 61 tipos diferentes de información o características que se recogen en esta tabla.
+2025-07-10 10:04:28,374 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 93
+[2025-07-10 10:04:57] Usuario: sdomenechp@gmail.com | Pregunta: me puedes entregar la cantidad de variedades que hay por categoria?
+[2025-07-10 10:04:57] [USER: sdomenechp@gmail.com] [PREGUNTA] me puedes entregar la cantidad de variedades que hay por categoria? | Pregunta humana recibida.
+[2025-07-10 10:04:57] [USER: sdomenechp@gmail.com] [PREGUNTA] me puedes entregar la cantidad de variedades que hay por categoria? | Prompt enviado a OpenAI (system/user)
+2025-07-10 10:05:01,060 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:05:01] [USER: sdomenechp@gmail.com] [PREGUNTA] me puedes entregar la cantidad de variedades que hay por categoria? | Respuesta cruda: {
+  "sql_query": "SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) as cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;",
+  "table": [["DES_CATEGORIAREAL", "cantidad_variedades"], ["Categoria A", 5], ["Categoria B", 3]],
+  "chart": {
+    "type": "bar",
+    "labels": ["Categoria A", "Categoria B"],
+    "values": [5, 3]
+  },
+  "message": "Se muestra la cantidad de variedades distintas agrupadas por cada categoría real en el proceso."
+}
+[2025-07-10 10:05:01] [USER: sdomenechp@gmail.com] [PREGUNTA] me puedes entregar la cantidad de variedades que hay por categoria? | SQL generado: SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) as cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;
+2025-07-10 10:05:04,392 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:05:04] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: Para cada categoría que tenemos en nuestros procesos, se identificaron distintas variedades. Por ejemplo, en la categoría "CAT I", hay una amplia variedad de opciones disponibles. En otra categoría llamada "CAT I CALIBR", también hay varias opciones, aunque no tantas como en la anterior. Y en "CAT II", encontramos algunas menos, pero todavía existen variedades disponibles. Esto te muestra la diversidad de opciones que manejamos para cada una de nuestras categorías.
+2025-07-10 10:05:04,660 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 94
+2025-07-10 10:05:53,408 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:05:54,426 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:06:22,639 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 10:06:23,028 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-10 10:07:56] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-10 10:07:56] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-10 10:07:56] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-10 10:07:57,069 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 10:07:57] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 10:07:57] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 10:07:57,337 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 95
+[2025-07-10 11:56:14] Usuario: sdomenechp@gmail.com | Pregunta: como estas?
+[2025-07-10 11:56:14] [USER: sdomenechp@gmail.com] [PREGUNTA] como estas? | Pregunta humana recibida.
+[2025-07-10 11:56:14] [USER: sdomenechp@gmail.com] [PREGUNTA] como estas? | Prompt enviado a OpenAI (system/user)
+2025-07-10 11:56:18,423 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 11:56:19] [USER: sdomenechp@gmail.com] [PREGUNTA] como estas? | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-10 11:56:19] [USER: sdomenechp@gmail.com] [PREGUNTA] como estas? | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-10 11:56:19,216 ERROR:root:[QUERY_LOGGER] Error registrando log: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+[SQL: INSERT INTO public.query_logs (user_id, user_email, question, table_used, sql_generated, sql_exec_success, error_message, llm_model, llm_tokens_prompt, llm_tokens_completion, llm_tokens_total, llm_response_time_ms, sql_exec_time_ms, row_count, columns, feedback, feedback_comment, llm_raw_request, llm_raw_response, llm_final_answer, sql_raw_result, frontend_version, api_version, client_ip, user_agent, prompt_template_version, created_at, updated_at) VALUES (%(user_id)s::UUID, %(user_email)s, %(question)s, %(table_used)s, %(sql_generated)s, %(sql_exec_success)s, %(error_message)s, %(llm_model)s, %(llm_tokens_prompt)s, %(llm_tokens_completion)s, %(llm_tokens_total)s, %(llm_response_time_ms)s, %(sql_exec_time_ms)s, %(row_count)s, %(columns)s::TEXT[], %(feedback)s, %(feedback_comment)s, %(llm_raw_request)s::JSONB, %(llm_raw_response)s::JSONB, %(llm_final_answer)s, %(sql_raw_result)s::JSONB, %(frontend_version)s, %(api_version)s, %(client_ip)s, %(user_agent)s, %(prompt_template_version)s, %(created_at)s, %(updated_at)s) RETURNING public.query_logs.id]
+[parameters: {'user_id': 'f59d4deb-b575-4e1b-8046-0b71e0509325', 'user_email': 'sdomenechp@gmail.com', 'question': 'como estas?', 'table_used': 'PROCESOS_ACT', 'sql_generated': None, 'sql_exec_success': False, 'error_message': None, 'llm_model': 'gpt-4o', 'llm_tokens_prompt': None, 'llm_tokens_completion': None, 'llm_tokens_total': None, 'llm_response_time_ms': None, 'sql_exec_time_ms': None, 'row_count': None, 'columns': None, 'feedback': None, 'feedback_comment': None, 'llm_raw_request': 'null', 'llm_raw_response': 'null', 'llm_final_answer': '¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.', 'sql_raw_result': 'null', 'frontend_version': None, 'api_version': 'v1', 'client_ip': '127.0.0.1', 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'prompt_template_version': None, 'created_at': datetime.datetime(2025, 7, 10, 15, 55, 57, 678046), 'updated_at': datetime.datetime(2025, 7, 10, 15, 55, 57, 678046)}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-07-10 11:56:37] Usuario: sdomenechp@gmail.com | Pregunta: muestrame cuantas variedades hay por categoria
+[2025-07-10 11:56:37] [USER: sdomenechp@gmail.com] [PREGUNTA] muestrame cuantas variedades hay por categoria | Pregunta humana recibida.
+[2025-07-10 11:56:37] [USER: sdomenechp@gmail.com] [PREGUNTA] muestrame cuantas variedades hay por categoria | Prompt enviado a OpenAI (system/user)
+2025-07-10 11:56:39,499 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 11:56:39] [USER: sdomenechp@gmail.com] [PREGUNTA] muestrame cuantas variedades hay por categoria | Respuesta cruda: {
+  "sql_query": "SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) as cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;",
+  "message": "Se muestra la cantidad de variedades distintas agrupadas por categoría real de la fruta."
+}
+[2025-07-10 11:56:39] [USER: sdomenechp@gmail.com] [PREGUNTA] muestrame cuantas variedades hay por categoria | SQL generado: SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) as cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL;
+2025-07-10 11:56:42,755 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-10 11:56:42] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: Hemos revisado las categorías de nuestros productos y contado cuántas variedades diferentes hay dentro de cada una. Por ejemplo, en la categoría "CAT I" tenemos muchas opciones diferentes de variedades, alrededor de 25 tipos distintos. En "CAT I CALIBR", hay algunas menos, aproximadamente 4 variedades. Mientras que en "CAT II" encontramos todavía menos, con solo unas 2 variedades distintas. Esto nos ayuda a entender cuán diversa es nuestra oferta dentro de cada categoría.
+2025-07-10 11:56:43,914 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 96
