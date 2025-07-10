@@ -26,6 +26,7 @@ interface ChatMessage {
   executionTime?: number;
   columns?: string[];
   rows?: (string | number | null)[][];
+  info?: string;
 }
 
 export function ChatInterface() {
@@ -36,7 +37,7 @@ export function ChatInterface() {
   const [feedbackModal, setFeedbackModal] = useState<{ show: boolean; queryLogId?: number }>({ show: false });
   const [showChartMsgId, setShowChartMsgId] = useState<string | null>(null);
 
-  const messagesContainerRef = useRef<HTMLDivElement>(null); // <--- Nuevo: apunta al contenedor scrolleable
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -116,9 +117,25 @@ export function ChatInterface() {
       });
     },
     onSuccess: (data) => {
+      // Maneja respuesta tipo info (saludo, sin datos)
+      if (data.info) {
+        const assistantMessage: ChatMessage = {
+          id: `assistant-info-${Date.now()}`,
+          type: 'assistant',
+          content: data.info,
+          timestamp: new Date(),
+          info: data.info,
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        setShowChartMsgId(null);
+        return;
+      }
+
       let answerContent: string | string[] = data.answer || 'Consulta realizada correctamente.';
       let columns = data.columns || undefined;
       let rows = data.rows || undefined;
+
+      // Conversión a lista si es respuesta tipo lista
       if (!columns && typeof answerContent === "string") {
         const lines = answerContent.split('\n').map(l => l.trim()).filter(Boolean);
         if (
@@ -334,7 +351,6 @@ export function ChatInterface() {
 
       {/* Mensajes del chat */}
       <div className="flex-1 min-h-0 relative">
-        {/* EL CONTENEDOR SCROLLEABLE con ref */}
         <div
           ref={messagesContainerRef}
           className="overflow-y-auto flex-1 min-h-0 px-4 py-4"
@@ -389,10 +405,12 @@ export function ChatInterface() {
                             : 'bg-muted'
                         }`}
                       >
-                        {/* ---- RENDER LOGIC: TABLA + GRAFICO + TEXTO ---- */}
-                        {msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) && msg.columns.length > 1 ? (
+                        {/* --- Mensaje tipo INFO (saludo, sin datos ni tablas ni gráfico) --- */}
+                        {msg.type === 'assistant' && msg.info ? (
+                          <div>{msg.info}</div>
+                        ) : msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) && msg.columns.length > 1 ? (
                           <div>
-                            {/* Explicación amigable primero */}
+                            {/* Explicación amigable */}
                             {typeof msg.content === 'string' && msg.content.length > 0 && (
                               <div className="mb-2">{msg.content}</div>
                             )}
@@ -416,15 +434,16 @@ export function ChatInterface() {
                           <p className="whitespace-pre-wrap">{Array.isArray(msg.content) ? msg.content.join('\n') : msg.content}</p>
                         )}
 
-                        {msg.type === 'assistant' && msg.executionTime && (
+                        {/* Badge de tiempo de ejecución solo si NO es info */}
+                        {msg.type === 'assistant' && msg.executionTime && !msg.info && (
                           <div className="mt-2 pt-2 border-t border-muted-foreground/20">
                             <Badge variant="secondary" className="text-xs">
                               Ejecutado en {msg.executionTime}ms
                             </Badge>
                           </div>
                         )}
-                        {/* Mostrar el ID del log solo si existe y es assistant */}
-                        {msg.type === 'assistant' && msg.queryLogId && (
+                        {/* Mostrar ID Log solo si assistant y no info */}
+                        {msg.type === 'assistant' && msg.queryLogId && !msg.info && (
                           <div className="mt-1">
                             <span className="text-[11px] text-muted-foreground select-all">
                               <b>ID Log:</b> {msg.queryLogId}
@@ -433,8 +452,8 @@ export function ChatInterface() {
                         )}
                       </div>
 
-                      {/* Assistant message actions */}
-                      {msg.type === 'assistant' && (
+                      {/* Acciones para mensajes assistant */}
+                      {msg.type === 'assistant' && !msg.info && (
                         <div className="flex items-center space-x-2 mt-2">
                           <span className="text-xs text-muted-foreground">
                             {msg.timestamp.toLocaleTimeString()}
