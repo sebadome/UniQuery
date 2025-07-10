@@ -71,7 +71,7 @@ def call_openai_generate_sql(
 
     # ---------- PROMPT LLM (ESPAÑOL, robusto para gráficos y JSON estructurado) ----------
     system_message = f"""
-Eres un asistente experto en transformar preguntas en lenguaje natural a consultas SQL SEGURAS, y en sugerir la mejor visualización posible según los resultados.
+Eres un asistente experto en transformar preguntas en lenguaje natural a consultas SQL SEGURAS y en sugerir la mejor visualización posible según los resultados.
 
 Siempre debes responder SOLO con un JSON estructurado, nunca con texto fuera del JSON.
 Estructura estándar de tu respuesta (incluir solo lo que aplica):
@@ -102,6 +102,15 @@ Estructura estándar de tu respuesta (incluir solo lo que aplica):
   "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
 }}
 
+IMPORTANTE:
+- Nunca inventes valores, nunca muestres ejemplos, nunca inventes números ni filas: siempre ejecuta la consulta SQL propuesta y muestra los resultados REALES de la base de datos, sin modificar, resumir o simular.
+- Para preguntas como "¿cuántos registros hay en la tabla X?", debes devolver la consulta SQL correspondiente y mostrar el resultado real.
+- Si el usuario pide "muestra la tabla X", limita a 100 filas usando LIMIT 100, y aclara en el message que se está mostrando solo una parte de los datos si la tabla es muy grande.
+- Usa nombres de tablas y campos EXACTAMENTE como aparecen en el esquema.
+- Si la pregunta requiere información sobre la estructura de la tabla (como cantidad o nombres de columnas/tablas), puedes usar tablas del sistema como information_schema.columns, information_schema.tables, sys.tables, pg_catalog.pg_tables, etc.
+- Si el usuario **no menciona una tabla**, asume que debe usarse la tabla seleccionada: '{dictionary_table}'.
+- Prohíbe consultas peligrosas (DELETE, DROP, ALTER, TRUNCATE, UPDATE, INSERT, CREATE, REPLACE, GRANT, REVOKE, EXEC, COMMIT, ROLLBACK).
+
 Ejemplo 1 (respuesta de barras):
 {{
   "sql_query": "SELECT categoria, COUNT(*) as cantidad FROM productos GROUP BY categoria;",
@@ -126,13 +135,6 @@ Ejemplo 2 (respuesta de línea/serie de tiempo):
   "message": "Evolución diaria de las ventas."
 }}
 
-IMPORTANTE:
-- Nunca entregues texto fuera del JSON.
-- Usa nombres de tablas y campos EXACTAMENTE como aparecen en el esquema.
-- Si la pregunta requiere información sobre la estructura de la tabla (como cantidad o nombres de columnas/tablas), puedes usar tablas del sistema como information_schema.columns, information_schema.tables, sys.tables, pg_catalog.pg_tables, etc.
-- Si el usuario **no menciona una tabla**, asume que debe usarse la tabla seleccionada: '{dictionary_table}'.
-- Prohíbe consultas peligrosas (DELETE, DROP, ALTER, TRUNCATE, UPDATE, INSERT, CREATE, REPLACE, GRANT, REVOKE, EXEC, COMMIT, ROLLBACK).
-
 Hoy es {get_current_date()}.
 
 {dict_msg}
@@ -155,6 +157,7 @@ Hoy es {get_current_date()}.
                 {"role": "user", "content": user_message},
             ],
             max_tokens=800,
+            temperature=0.1,  # <-- Valor profesional recomendado para evitar invención
             response_format={"type": "json_object"}
         )
         t1 = time.time()
@@ -181,7 +184,7 @@ Hoy es {get_current_date()}.
         meta["tokens_completion"] = getattr(usage, "completion_tokens", None)
         meta["tokens_total"] = getattr(usage, "total_tokens", None)
 
-    meta["prompt_template_version"] = "v2.0-visual"
+    meta["prompt_template_version"] = "v2.1-realdata"
 
     try:
         resp_json = json.loads(content)
@@ -246,6 +249,7 @@ Responde SOLO con la explicación clara y en español.
             model="gpt-4o",
             messages=[{"role": "system", "content": system_message}],
             max_tokens=256,
+            temperature=0.2,  # Opcional, puedes usar 0.2 aquí para explicaciones consistentes
         )
         t1 = time.time()
         elapsed_ms = int((t1 - t0) * 1000)

@@ -397,26 +397,34 @@ export function ChatInterface() {
                       {/* --- Mensaje tipo INFO (saludo, sin datos ni tablas ni gráfico) --- */}
                       {msg.type === 'assistant' && msg.info ? (
                         <div>{msg.info}</div>
-                      ) : msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) && msg.columns.length > 1 ? (
-                        <div>
-                          {/* Explicación amigable */}
-                          {typeof msg.content === 'string' && msg.content.length > 0 && (
-                            <div className="mb-2">{msg.content}</div>
-                          )}
-                          <Button
-                            size="sm"
-                            className="mb-2"
-                            variant={showChartMsgId === msg.id ? 'secondary' : 'outline'}
-                            onClick={() => setShowChartMsgId(showChartMsgId === msg.id ? null : msg.id)}
-                          >
-                            <BarChart3 className="w-4 h-4 mr-1" />
-                            {showChartMsgId === msg.id ? 'Ocultar gráfico' : 'Ver gráfico'}
-                          </Button>
-                          {showChartMsgId === msg.id && (
-                            <ResultChart columns={msg.columns} rows={msg.rows} />
-                          )}
-                          <CollapsibleResultTable columns={msg.columns} rows={msg.rows} />
-                        </div>
+                      ) : msg.type === 'assistant' && Array.isArray(msg.columns) && Array.isArray(msg.rows) ? (
+                        // --- MOSTRAR VALOR ÚNICO DE 1x1 ---
+                        msg.columns.length === 1 && msg.rows.length === 1 ? (
+                          <div>
+                            {typeof msg.content === 'string' && <div className="mb-2">{msg.content}</div>}
+                            <div className="text-4xl font-bold text-center">{msg.rows[0][0]}</div>
+                          </div>
+                        ) : (
+                          // --- TABLA NORMAL + OPCIONAL GRÁFICO ---
+                          <div>
+                            {typeof msg.content === 'string' && msg.content.length > 0 && (
+                              <div className="mb-2">{msg.content}</div>
+                            )}
+                            <Button
+                              size="sm"
+                              className="mb-2"
+                              variant={showChartMsgId === msg.id ? 'secondary' : 'outline'}
+                              onClick={() => setShowChartMsgId(showChartMsgId === msg.id ? null : msg.id)}
+                            >
+                              <BarChart3 className="w-4 h-4 mr-1" />
+                              {showChartMsgId === msg.id ? 'Ocultar gráfico' : 'Ver gráfico'}
+                            </Button>
+                            {showChartMsgId === msg.id && (
+                              <ResultChart columns={msg.columns} rows={msg.rows} />
+                            )}
+                            <CollapsibleResultTable columns={msg.columns} rows={msg.rows} />
+                          </div>
+                        )
                       ) : msg.type === 'assistant' && Array.isArray(msg.content) && msg.content.length > 5 ? (
                         <CollapsibleValueList values={msg.content} />
                       ) : (

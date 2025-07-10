@@ -7,8 +7,9 @@ import {
   PointElement, LineElement, Title, Tooltip as ChartTooltip, Legend, ArcElement, Filler
 } from "chart.js";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Maximize2, X } from "lucide-react";
 
-// --- SVG Thumbnails para tipos de gráfico ---
 const chartThumbnails: Record<string, JSX.Element> = {
   bar:   <svg width="34" height="18"><rect x="3" y="8" width="3" height="7" fill="#60a5fa"/><rect x="10" y="4" width="3" height="11" fill="#60a5fa"/><rect x="17" y="1" width="3" height="14" fill="#60a5fa"/><rect x="24" y="11" width="3" height="4" fill="#60a5fa"/></svg>,
   line:  <svg width="34" height="18"><polyline points="3,15 10,12 17,4 24,10" fill="none" stroke="#34d399" strokeWidth="2"/><circle cx="3" cy="15" r="1.5" fill="#34d399"/><circle cx="10" cy="12" r="1.5" fill="#34d399"/><circle cx="17" cy="4" r="1.5" fill="#34d399"/><circle cx="24" cy="10" r="1.5" fill="#34d399"/></svg>,
@@ -28,9 +29,9 @@ type ChartType = "bar" | "line" | "area" | "pie" | "doughnut" | "scatter";
 interface ResultChartProps {
   columns: string[];
   rows: (string | number | null)[][];
+  height?: number; // opcional: para usar más grande en el modal
 }
 
-// --- Helpers ---
 function isNumeric(value: any) {
   if (typeof value === "number") return true;
   if (typeof value === "string") {
@@ -76,7 +77,6 @@ function suggestChartType({
   return "bar";
 }
 
-// Sugerencia de tipo de dato recomendada por gráfico (thumb)
 const recommendedData: Record<ChartType, string> = {
   bar: "Categorías (texto) vs. valores numéricos",
   line: "Fechas (serie temporal) vs. valores numéricos",
@@ -96,32 +96,27 @@ function getSuggestionReason(type: ChartType, xCol: string, yCols: string[], lab
   return "Gráfico sugerido en base a los datos.";
 }
 
-export function ResultChart({ columns, rows }: ResultChartProps) {
+export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
+  // --- Maximizar Modal ---
+  const [showModal, setShowModal] = useState(false);
+
   // Validaciones iniciales
   if (!columns || columns.length < 2 || !rows || rows.length === 0) {
     return <div className="p-4 text-muted-foreground">No hay datos suficientes para graficar.</div>;
   }
 
-  // Detecta columnas numéricas para eje Y
   const numericCols = columns.filter((_, colIdx) =>
     rows.some((r) => isNumeric(r[colIdx]))
   );
-
-  // Default X/Y (el primero string/fecha como X, los demás numéricos como Y)
   const defaultX = columns.find((col, i) =>
     rows.every((r) => typeof r[i] === "string" || isDate(String(r[i])))
   ) || columns[0];
   const defaultYs = numericCols.length ? [numericCols[0]] : [columns[1]];
-
-  // Estado para controles interactivos
   const [xCol, setXCol] = useState(defaultX);
   const [yCols, setYCols] = useState<string[]>(defaultYs);
-
-  // Indices
   const xIdx = columns.indexOf(xCol);
   const yIdxs = yCols.map(yc => columns.indexOf(yc));
 
-  // Sugiere tipo
   const suggestedType = useMemo(
     () => suggestChartType({ xCol, yCols, columns, rows }),
     [xCol, yCols, columns, rows]
@@ -129,7 +124,6 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
   const [chartType, setChartType] = useState<ChartType | null>(null);
   const actualType = chartType ?? suggestedType;
 
-  // Construir datos para graficar
   const labels = rows.map(row =>
     row[xIdx] !== null && row[xIdx] !== undefined ? String(row[xIdx]) : "(Sin valor)"
   );
@@ -145,7 +139,6 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
     })
   );
 
-  // Valida datos numéricos mínimos
   if (yValues.flat().filter((v) => typeof v === "number" && !isNaN(v)).length < 2) {
     return (
       <div className="p-4 text-muted-foreground">
@@ -154,7 +147,6 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
     );
   }
 
-  // --- datasets para cada tipo ---
   const datasets = yCols.map((yCol, i) => ({
     label: yCol,
     data: yValues[i],
@@ -186,6 +178,7 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
   };
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' as const },
       title: {
@@ -199,128 +192,158 @@ export function ResultChart({ columns, rows }: ResultChartProps) {
     },
   };
 
-  // --- lógica para habilitar/deshabilitar tipos según datos ---
   function isChartTypeEnabled(type: ChartType) {
-    // Pie/Doughnut solo si 1 Y, pocas categorías, y todas numéricas
     if ((type === "pie" || type === "doughnut") && (
       yCols.length !== 1 ||
       labels.length > 15 ||
       yValues[0].filter((v) => typeof v === "number" && !isNaN(v)).length < 2
     )) return false;
-    // Scatter solo si 1 Y y X/Y numéricas
     if (type === "scatter" && (
       yCols.length !== 1 ||
       !isNumeric(rows[0]?.[xIdx]) ||
       !isNumeric(rows[0]?.[yIdxs[0]])
     )) return false;
-    // Line solo si todos X son fecha
     if (type === "line" && !labels.every(isDate)) return false;
-    // Area igual a line
     if (type === "area" && !labels.every(isDate)) return false;
-    // Bar siempre permitido si hay Y
     if (type === "bar" && yCols.length >= 1) return true;
     return true;
   }
 
-  // Multi-selección Y
   function handleYColChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
     setYCols(selected.length > 0 ? selected : [numericCols[0] || columns[1]]);
-    setChartType(null); // reset type si cambia
+    setChartType(null);
   }
 
-  // --- UI: Interactividad profesional ---
+  // --- UI: Interactividad profesional + botón maximizar ---
   return (
-    <div className="bg-white rounded-xl p-4 my-3 shadow">
-      <TooltipProvider>
-        <div className="flex flex-wrap gap-2 mb-2 items-center">
-          <label className="text-sm">Eje X:</label>
-          <select
-            value={xCol}
-            onChange={e => { setXCol(e.target.value); setChartType(null); }}
-            className="border px-2 py-1 rounded"
-          >
-            {columns.map((col) => (
-              <option key={col} value={col}>{col}</option>
-            ))}
-          </select>
-          <label className="text-sm ml-2">Eje Y:</label>
-          <select
-            value={yCols}
-            onChange={handleYColChange}
-            className="border px-2 py-1 rounded"
-            multiple
-            size={Math.min(4, numericCols.length)}
-            style={{ minWidth: 120 }}
-          >
-            {numericCols.map((col) => (
-              <option key={col} value={col}>{col}</option>
-            ))}
-          </select>
-          <label className="text-sm ml-2">Tipo de gráfico:</label>
-          <div className="flex gap-1">
-            {(["bar", "line", "area", "pie", "doughnut", "scatter"] as ChartType[]).map(type => (
-              <Tooltip key={type}>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    disabled={!isChartTypeEnabled(type)}
-                    onClick={() => setChartType(type)}
-                    className={`border px-1 py-1 rounded bg-white flex flex-col items-center justify-center
-                      ${actualType === type ? "ring-2 ring-blue-400" : ""}
-                      ${!isChartTypeEnabled(type) ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-100"}`}
-                  >
-                    {chartThumbnails[type]}
-                    <span className="text-[10px]">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <div className="text-xs capitalize font-semibold mb-1">
-                    {type === "bar" && "Comparar valores por categoría"}
-                    {type === "line" && "Evolución temporal o tendencia"}
-                    {type === "area" && "Evolución temporal (área bajo la curva)"}
-                    {type === "pie" && "Proporción o porcentaje del total"}
-                    {type === "doughnut" && "Proporción tipo doughnut"}
-                    {type === "scatter" && "Relación entre dos variables numéricas"}
-                  </div>
-                  <div className="text-xs mb-1">
-                    <b>Tipo de datos recomendado:</b> {recommendedData[type]}
-                  </div>
-                  {!isChartTypeEnabled(type) && (
-                    <div className="mt-1 text-xs text-orange-700">
-                      No disponible para la selección actual.
+    <>
+      <div className="bg-white rounded-xl p-4 my-3 shadow relative">
+        {/* Maximizar */}
+        <button
+          type="button"
+          aria-label="Maximizar gráfico"
+          className="absolute top-3 right-3 p-1 rounded-full bg-slate-100 hover:bg-slate-200"
+          onClick={() => setShowModal(true)}
+        >
+          <Maximize2 className="h-4 w-4 text-slate-600" />
+        </button>
+        <TooltipProvider>
+          <div className="flex flex-wrap gap-2 mb-2 items-center">
+            <label className="text-sm">Eje X:</label>
+            <select
+              value={xCol}
+              onChange={e => { setXCol(e.target.value); setChartType(null); }}
+              className="border px-2 py-1 rounded"
+            >
+              {columns.map((col) => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+            <label className="text-sm ml-2">Eje Y:</label>
+            <select
+              value={yCols}
+              onChange={handleYColChange}
+              className="border px-2 py-1 rounded"
+              multiple
+              size={Math.min(4, numericCols.length)}
+              style={{ minWidth: 120 }}
+            >
+              {numericCols.map((col) => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+            <label className="text-sm ml-2">Tipo de gráfico:</label>
+            <div className="flex gap-1">
+              {(["bar", "line", "area", "pie", "doughnut", "scatter"] as ChartType[]).map(type => (
+                <Tooltip key={type}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      disabled={!isChartTypeEnabled(type)}
+                      onClick={() => setChartType(type)}
+                      className={`border px-1 py-1 rounded bg-white flex flex-col items-center justify-center
+                        ${actualType === type ? "ring-2 ring-blue-400" : ""}
+                        ${!isChartTypeEnabled(type) ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-100"}`}
+                    >
+                      {chartThumbnails[type]}
+                      <span className="text-[10px]">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <div className="text-xs capitalize font-semibold mb-1">
+                      {type === "bar" && "Comparar valores por categoría"}
+                      {type === "line" && "Evolución temporal o tendencia"}
+                      {type === "area" && "Evolución temporal (área bajo la curva)"}
+                      {type === "pie" && "Proporción o porcentaje del total"}
+                      {type === "doughnut" && "Proporción tipo doughnut"}
+                      {type === "scatter" && "Relación entre dos variables numéricas"}
                     </div>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            ))}
+                    <div className="text-xs mb-1">
+                      <b>Tipo de datos recomendado:</b> {recommendedData[type]}
+                    </div>
+                    {!isChartTypeEnabled(type) && (
+                      <div className="mt-1 text-xs text-orange-700">
+                        No disponible para la selección actual.
+                      </div>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="ml-1 cursor-pointer text-xs text-blue-700 underline">
+                  (¿Por qué sugerido?)
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <div className="text-xs">{getSuggestionReason(actualType, xCol, yCols, labels, yValues)}</div>
+              </TooltipContent>
+            </Tooltip>
+            <span className="ml-2 text-xs text-muted-foreground">
+              ({actualType === suggestedType ? "sugerido" : "personalizado"})
+            </span>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="ml-1 cursor-pointer text-xs text-blue-700 underline">
-                (¿Por qué sugerido?)
-              </span>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              <div className="text-xs">{getSuggestionReason(actualType, xCol, yCols, labels, yValues)}</div>
-            </TooltipContent>
-          </Tooltip>
-          <span className="ml-2 text-xs text-muted-foreground">
-            ({actualType === suggestedType ? "sugerido" : "personalizado"})
-          </span>
+        </TooltipProvider>
+        <div style={{ height }}>
+          {actualType === "bar" && <Bar data={data} options={options} />}
+          {actualType === "line" && <Line data={data} options={options} />}
+          {actualType === "area" && <Line data={{ ...data, datasets: datasets.map(d => ({ ...d, fill: true })) }} options={options} />}
+          {actualType === "pie" && yCols.length === 1 && <Pie data={pieData} />}
+          {actualType === "doughnut" && yCols.length === 1 && <Doughnut data={pieData} />}
+          {actualType === "scatter" && yCols.length === 1 && <Scatter data={scatterData} options={options} />}
+          {actualType === "scatter" && yCols.length > 1 && (
+            <div className="p-2 text-sm text-orange-700">
+              El gráfico de dispersión solo soporta una variable Y.
+            </div>
+          )}
         </div>
-      </TooltipProvider>
-      {actualType === "bar" && <Bar data={data} options={options} />}
-      {actualType === "line" && <Line data={data} options={options} />}
-      {actualType === "area" && <Line data={{ ...data, datasets: datasets.map(d => ({ ...d, fill: true })) }} options={options} />}
-      {actualType === "pie" && yCols.length === 1 && <Pie data={pieData} />}
-      {actualType === "doughnut" && yCols.length === 1 && <Doughnut data={pieData} />}
-      {actualType === "scatter" && yCols.length === 1 && <Scatter data={scatterData} options={options} />}
-      {actualType === "scatter" && yCols.length > 1 && (
-        <div className="p-2 text-sm text-orange-700">
-          El gráfico de dispersión solo soporta una variable Y.
-        </div>
-      )}
-    </div>
+      </div>
+
+      {/* Modal Maximizado */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-[98vw] w-[900px] md:w-[1200px] p-6">
+          <DialogHeader className="flex flex-row justify-between items-center">
+            <DialogTitle>Gráfico en grande</DialogTitle>
+            <button
+              className="ml-auto rounded-full hover:bg-slate-200 p-1"
+              onClick={() => setShowModal(false)}
+              aria-label="Cerrar"
+              type="button"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </DialogHeader>
+          <div className="pt-2">
+            <ResultChart
+              columns={columns}
+              rows={rows}
+              height={600}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
