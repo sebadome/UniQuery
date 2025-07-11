@@ -26,9 +26,9 @@ class HumanQueryResponse(BaseModel):
     rows: Optional[List[List[Any]]] = None
     executionTime: Optional[float] = None
     query_log_id: Optional[int] = None
-    chart: Optional[Dict[str, Any]] = None  # NUEVO: Soporte para gráficos
-    list: Optional[List[Any]] = None        # NUEVO: Soporte para listas
-    table: Optional[List[List[Any]]] = None # NUEVO: tabla enriquecida
+    chart: Optional[Dict[str, Any]] = None
+    list: Optional[List[Any]] = None
+    table: Optional[List[List[Any]]] = None
 
 class HumanQueryRequest(BaseModel):
     question: str
@@ -48,7 +48,7 @@ async def human_query(
     client_ip = fastapi_request.client.host if fastapi_request.client else None
     user_agent = fastapi_request.headers.get("user-agent", "")
 
-    # Datos de log para la query
+    # Prepara los datos para el log
     query_log_data = {
         "user_id": user_id,
         "user_email": user_email,
@@ -76,8 +76,8 @@ async def human_query(
         "updated_at": datetime.utcnow(),
         "feedback": None,
         "feedback_comment": None,
-        "llm_final_answer": None,   # Respuesta amigable del LLM
-        "sql_raw_result": None      # Resultados crudos JSONB
+        "llm_final_answer": None,
+        "sql_raw_result": None
     }
     query_log_id = None
 
@@ -113,10 +113,13 @@ async def human_query(
             return_metadata=True
         )
 
-        # -- (1) Respuesta tipo info ("hola", presentación, etc.) --
+        # (1) Si es saludo/presentación
         if llm_json and "info" in llm_json:
             info_message = llm_json["info"]
             query_log_data["llm_final_answer"] = info_message
+            query_log_data["llm_raw_request"] = llm_json.get("raw_prompt")
+            query_log_data["llm_raw_response"] = llm_json.get("raw_response")
+            query_log_data["prompt_template_version"] = llm_json.get("prompt_template_version")
             query_log_id = log_query_attempt(query_log_data)
             return HumanQueryResponse(
                 answer=info_message,
@@ -130,9 +133,12 @@ async def human_query(
                 table=None,
             )
 
-        # -- (2) Si hubo error en LLM
+        # (2) Si LLM no generó SQL
         if sql_result is None:
             query_log_data["error_message"] = "No se pudo generar consulta SQL (LLM falló)."
+            query_log_data["llm_raw_request"] = llm_json.get("raw_prompt") if isinstance(llm_json, dict) else None
+            query_log_data["llm_raw_response"] = llm_json.get("raw_response") if isinstance(llm_json, dict) else None
+            query_log_data["prompt_template_version"] = llm_json.get("prompt_template_version") if isinstance(llm_json, dict) else None
             query_log_id = log_query_attempt(query_log_data)
             raise HTTPException(
                 status_code=400,
@@ -145,6 +151,7 @@ async def human_query(
                 status_code=400,
                 detail=sql_result["error"]
             )
+
         sql_query = sql_result if isinstance(sql_result, str) else None
         if not sql_query:
             query_log_data["error_message"] = "No se pudo generar consulta SQL válida."
@@ -154,17 +161,17 @@ async def human_query(
                 detail="No se pudo generar consulta SQL válida. Reformula tu pregunta."
             )
 
-        # -- (3) Guarda metadata del LLM en log
+        # (3) Guarda metadata LLM y SQL generado
         query_log_data["sql_generated"] = sql_query
-        query_log_data["llm_raw_request"] = llm_json.get("raw_prompt") if isinstance(llm_json, dict) else None
-        query_log_data["llm_raw_response"] = llm_json.get("raw_response") if isinstance(llm_json, dict) else None
-        query_log_data["llm_tokens_prompt"] = llm_json.get("tokens_prompt") if isinstance(llm_json, dict) else None
-        query_log_data["llm_tokens_completion"] = llm_json.get("tokens_completion") if isinstance(llm_json, dict) else None
-        query_log_data["llm_tokens_total"] = llm_json.get("tokens_total") if isinstance(llm_json, dict) else None
-        query_log_data["llm_response_time_ms"] = llm_json.get("response_time_ms") if isinstance(llm_json, dict) else None
-        query_log_data["prompt_template_version"] = llm_json.get("prompt_template_version") if isinstance(llm_json, dict) else None
+        query_log_data["llm_raw_request"] = llm_json.get("raw_prompt")
+        query_log_data["llm_raw_response"] = llm_json.get("raw_response")
+        query_log_data["llm_tokens_prompt"] = llm_json.get("tokens_prompt")
+        query_log_data["llm_tokens_completion"] = llm_json.get("tokens_completion")
+        query_log_data["llm_tokens_total"] = llm_json.get("tokens_total")
+        query_log_data["llm_response_time_ms"] = llm_json.get("response_time_ms")
+        query_log_data["prompt_template_version"] = llm_json.get("prompt_template_version")
 
-        # 4. Ejecuta el SQL y retorna los resultados
+        # 4. Ejecuta el SQL y guarda resultados y métricas
         import time
         t0 = time.time()
         columns, rows = execute_sql_query(connection, sql_query)
@@ -187,7 +194,7 @@ async def human_query(
             detail=f"Error al procesar la consulta: {str(e)}"
         )
 
-    # 5. Genera respuesta amigable usando el LLM (preview hasta 20 filas)
+    # 5. Genera respuesta amigable usando el LLM (solo muestra máximo 20 filas)
     try:
         preview_rows = rows[:20]
         answer_text, llm_explain_meta = call_openai_explain_answer(
@@ -207,12 +214,11 @@ async def human_query(
 
     query_log_id = log_query_attempt(query_log_data)
 
-    # 6. Preparar respuesta enriquecida con gráficos/listas/tablas si el LLM lo entregó
+    # 6. Prepara la respuesta enriquecida con todo lo relevante
     chart = llm_json.get("chart") if isinstance(llm_json, dict) else None
     lista = llm_json.get("list") if isinstance(llm_json, dict) else None
     tabla = llm_json.get("table") if isinstance(llm_json, dict) else None
 
-    # Preferir tabla/columnas del resultado SQL real, pero puedes mostrar la sugerida por LLM si lo deseas.
     return HumanQueryResponse(
         answer=llm_json.get("message", answer_text) if isinstance(llm_json, dict) and llm_json.get("message") else answer_text,
         sql_query=sql_query,

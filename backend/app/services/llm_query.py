@@ -86,10 +86,9 @@ def call_openai_generate_sql(
             + "\n</diccionario_de_datos>"
         )
 
-    # ----------- PATRÓN: pregunta sobre el número de columnas de una tabla -----------
+    # ----------- MANEJO EXPLÍCITO PARA PREGUNTAS DE CONTEO DE COLUMNAS -----------
     table_for_count = is_count_columns_question(question)
     if table_for_count:
-        # Construye la consulta SQL correcta dependiendo de la base de datos
         if db_type.lower() in ("postgres", "postgresql"):
             sql_query = (
                 f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_for_count}';"
@@ -106,7 +105,14 @@ def call_openai_generate_sql(
             "sql_query": sql_query,
             "force_count_columns_message": True,
             "table_name": table_for_count,
-            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de columnas"
+            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de columnas",
+            "raw_response": None,
+            "response_time_ms": 0,
+            "model": "backend-direct",
+            "tokens_prompt": None,
+            "tokens_completion": None,
+            "tokens_total": None,
+            "prompt_template_version": "backend-direct"
         }
         return sql_query, meta
 
@@ -119,12 +125,12 @@ Estructura estándar de tu respuesta (incluir solo lo que aplica):
 
 {{
   "sql_query": "Consulta SQL generada",
-  "table": [["Col1", "Col2"], ["valor1", "valor2"], ...],    // Matriz para mostrar tabla (cabecera + filas)
-  "list": ["valor1", "valor2", ...],                        // Solo si aplica lista simple
+  "table": [["Col1", "Col2"], ["valor1", "valor2"], ...],
+  "list": ["valor1", "valor2", ...],
   "chart": {{
-    "type": "bar|pie|line|doughnut|scatter",                // Tipo sugerido (elige el más adecuado)
-    "labels": ["etiqueta1", "etiqueta2", ...],              // Eje X/categorías/fechas
-    "values": [10, 20, ...]                                 // Eje Y/valores asociados
+    "type": "bar|pie|line|doughnut|scatter",
+    "labels": ["etiqueta1", "etiqueta2", ...],
+    "values": [10, 20, ...]
   }},
   "message": "Explicación corta y clara en español"
 }}
@@ -211,20 +217,24 @@ Hoy es {get_current_date()}.
                 append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Query bloqueada por seguridad: {resp_json['sql_query']}")
                 return None, {"error": "Consulta no permitida por seguridad. (Intento de modificar datos)"}
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | SQL generado: {resp_json['sql_query']}")
-            return str(resp_json["sql_query"]), resp_json
+            # Incorpora metadatos y respuesta JSON cruda
+            meta.update(resp_json)
+            return str(resp_json["sql_query"]), meta
         elif "info" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Mensaje informativo del LLM: {resp_json['info']}")
-            return None, resp_json
+            meta.update(resp_json)
+            return None, meta
         elif "error" in resp_json:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | LLM error: {resp_json['error']}")
-            return None, {"error": str(resp_json["error"])}
+            meta.update(resp_json)
+            return None, meta
         else:
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Respuesta inesperada de LLM: {resp_json}")
-            return None, {"error": "No se pudo interpretar la respuesta del modelo. Intenta reformular tu pregunta."}
+            meta.update({"error": "No se pudo interpretar la respuesta del modelo. Intenta reformular tu pregunta."})
+            return None, meta
     except Exception as e:
         append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Error parseando respuesta LLM: {e} - Content: {content}")
         return None, {"error": "La respuesta del modelo no es válida. Intenta nuevamente."}
-
 
 def call_openai_explain_answer(
     question: str,

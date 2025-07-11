@@ -1677,3 +1677,129 @@ Esto es útil para entender cómo están distribuidas las opciones de productos 
 2025-07-10 18:21:04,500 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 [2025-07-10 18:21:04] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que realizaste te muestra cuántas variedades diferentes hay dentro de cada categoría. Por ejemplo, en la categoría "CAT I" hay varias variedades, mientras que en "CAT I CALIBR" y "CAT II" también hay algunas, pero en menor cantidad. Esto te permite ver la diversidad de productos o elementos que tienes en cada categoría específica.
 2025-07-10 18:21:04,766 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 139
+2025-07-10 18:23:45,391 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:23:45,774 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:23:47,011 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-10 18:25:08,061 INFO:root:[TEST_CONN] Intentando conexión DB: sqlserver host=10.100.8.50 db=GESTION00
+2025-07-10 18:25:08,602 ERROR:root:[TEST_CONN] Falló: ('28000', "[28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error de inicio de sesión del usuario 'visualizar'. (18456) (SQLDriverConnect); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]No se puede abrir la base de datos 'GESTION00' solicitada por el inicio de sesión. Error de inicio de sesión. (4060); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error de inicio de sesión del usuario 'visualizar'. (18456); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]No se puede abrir la base de datos 'GESTION00' solicitada por el inicio de sesión. Error de inicio de sesión. (4060)")
+2025-07-10 18:25:21,571 INFO:root:[TEST_CONN] Intentando conexión DB: sqlserver host=10.100.8.50 db=GESTION00
+2025-07-10 18:25:21,605 ERROR:root:[TEST_CONN] Falló: ('28000', "[28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error de inicio de sesión del usuario 'visualizar'. (18456) (SQLDriverConnect); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]No se puede abrir la base de datos 'GESTION00' solicitada por el inicio de sesión. Error de inicio de sesión. (4060); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Error de inicio de sesión del usuario 'visualizar'. (18456); [28000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]No se puede abrir la base de datos 'GESTION00' solicitada por el inicio de sesión. Error de inicio de sesión. (4060)")
+2025-07-11 10:10:52,221 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 10:10:52,911 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 10:10:56,056 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 10:14:16,091 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 10:14:16,992 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-11 10:14:29] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-11 10:14:29] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-11 10:14:29] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-11 10:14:32,984 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:14:32] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-11 10:14:32] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-11 10:14:33,262 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 140
+[2025-07-11 10:14:46] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas tiene la tabla?
+[2025-07-11 10:14:46] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene la tabla? | Pregunta humana recibida.
+2025-07-11 10:14:47,606 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:14:47] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla no tiene columnas, lo que significa que está vacía o no existe en la base de datos.
+2025-07-11 10:14:47,870 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 141
+[2025-07-11 10:15:15] Usuario: sdomenechp@gmail.com | Pregunta: cuantos registros tiene la tabla?
+[2025-07-11 10:15:15] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene la tabla? | Pregunta humana recibida.
+[2025-07-11 10:15:15] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene la tabla? | Prompt enviado a OpenAI (system/user)
+2025-07-11 10:15:17,477 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:15:17] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene la tabla? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM PROCESOS_ACT;",
+  "message": "Esta consulta cuenta el número total de registros en la tabla 'PROCESOS_ACT'."
+}
+[2025-07-11 10:15:17] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene la tabla? | SQL generado: SELECT COUNT(*) FROM PROCESOS_ACT;
+2025-07-11 10:15:18,709 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:15:18] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla que estás consultando tiene un total de 376,987 registros. Esto significa que hay 376,987 filas de información almacenadas en esa tabla.
+2025-07-11 10:15:18,990 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 142
+[2025-07-11 10:15:28] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas tiene la tabla?
+[2025-07-11 10:15:28] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene la tabla? | Pregunta humana recibida.
+2025-07-11 10:15:29,630 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:15:29] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla que estás consultando no tiene columnas. Esto significa que actualmente no contiene ningún dato o estructura para almacenar información.
+2025-07-11 10:15:29,898 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 143
+[2025-07-11 10:16:32] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas tiene?
+[2025-07-11 10:16:32] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Pregunta humana recibida.
+[2025-07-11 10:16:32] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Prompt enviado a OpenAI (system/user)
+2025-07-11 10:16:34,755 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:16:34] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';",
+  "message": "La consulta devuelve el número total de columnas en la tabla 'PROCESOS_ACT'."
+}
+[2025-07-11 10:16:34] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas tiene? | SQL generado: SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';
+2025-07-11 10:16:36,173 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:16:36] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla "PROCESOS_ACT" tiene un total de 61 columnas. Esto significa que hay 61 tipos diferentes de información o campos que se registran para cada entrada en esta tabla.
+2025-07-11 10:16:36,442 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 144
+[2025-07-11 10:18:07] Usuario: sdomenechp@gmail.com | Pregunta: entregame la cantidad de variedades por categoria
+[2025-07-11 10:18:07] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Pregunta humana recibida.
+[2025-07-11 10:18:07] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Prompt enviado a OpenAI (system/user)
+2025-07-11 10:18:10,911 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:18:10] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | Respuesta cruda: {
+  "sql_query": "SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL",
+  "table": [
+    ["DES_CATEGORIAREAL", "cantidad_variedades"],
+    ["Categoria 1", 5],
+    ["Categoria 2", 8],
+    ["Categoria 3", 3]
+  ],
+  "chart": {
+    "type": "bar",
+    "labels": ["Categoria 1", "Categoria 2", "Categoria 3"],
+    "values": [5, 8, 3]
+  },
+  "message": "La consulta muestra la cantidad de variedades distintas por cada categoría de fruta. Se sugiere una visualización de tipo barra para comparar fácilmente las cantidades entre categorías."
+}
+[2025-07-11 10:18:10] [USER: sdomenechp@gmail.com] [PREGUNTA] entregame la cantidad de variedades por categoria | SQL generado: SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL
+2025-07-11 10:18:16,432 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 10:18:16] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que realizaste te muestra cuántas variedades diferentes existen dentro de cada categoría. Por ejemplo, en la categoría "CAT I" hay varias variedades, y en "CAT I CALIBR" también hay algunas, pero menos que en "CAT I". La categoría "CAT II" tiene menos variedades que las anteriores. Esto te da una idea de la diversidad de productos o elementos que hay en cada categoría.
+2025-07-11 10:18:16,712 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 145
+2025-07-11 12:01:29,112 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 12:01:30,034 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 12:01:33,445 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-11 12:01:34,403 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+[2025-07-11 12:01:42] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-11 12:01:42] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-11 12:01:42] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-11 12:01:49,850 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 12:01:49] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+}
+[2025-07-11 12:01:49] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar.
+2025-07-11 12:01:50,143 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 146
+[2025-07-11 12:02:02] Usuario: sdomenechp@gmail.com | Pregunta: cuantas columnas posee la tabla?
+[2025-07-11 12:02:02] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas posee la tabla? | Pregunta humana recibida.
+[2025-07-11 12:02:02] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas posee la tabla? | Prompt enviado a OpenAI (system/user)
+2025-07-11 12:02:04,382 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 12:02:04] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas posee la tabla? | Respuesta cruda: {
+  "sql_query": "SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';",
+  "message": "La consulta SQL cuenta cuántas columnas tiene la tabla 'PROCESOS_ACT'."
+}
+[2025-07-11 12:02:04] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantas columnas posee la tabla? | SQL generado: SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'PROCESOS_ACT';
+2025-07-11 12:02:05,789 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 12:02:05] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla "PROCESOS_ACT" tiene un total de 61 columnas. Esto significa que hay 61 tipos diferentes de información que se pueden almacenar en cada registro de esta tabla.
+2025-07-11 12:02:06,060 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 147
+[2025-07-11 12:02:23] Usuario: sdomenechp@gmail.com | Pregunta: indicame cantidad de variedades por categorias
+[2025-07-11 12:02:23] [USER: sdomenechp@gmail.com] [PREGUNTA] indicame cantidad de variedades por categorias | Pregunta humana recibida.
+[2025-07-11 12:02:23] [USER: sdomenechp@gmail.com] [PREGUNTA] indicame cantidad de variedades por categorias | Prompt enviado a OpenAI (system/user)
+2025-07-11 12:02:27,561 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 12:02:27] [USER: sdomenechp@gmail.com] [PREGUNTA] indicame cantidad de variedades por categorias | Respuesta cruda: {
+  "sql_query": "SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL",
+  "table": [
+    ["DES_CATEGORIAREAL", "cantidad_variedades"],
+    ["Categoria 1", 5],
+    ["Categoria 2", 8],
+    ["Categoria 3", 3]
+  ],
+  "chart": {
+    "type": "bar",
+    "labels": ["Categoria 1", "Categoria 2", "Categoria 3"],
+    "values": [5, 8, 3]
+  },
+  "message": "La consulta muestra la cantidad de variedades distintas por cada categoría de fruta. Se utiliza un gráfico de barras para visualizar la cantidad de variedades en cada categoría."
+}
+[2025-07-11 12:02:27] [USER: sdomenechp@gmail.com] [PREGUNTA] indicame cantidad de variedades por categorias | SQL generado: SELECT DES_CATEGORIAREAL, COUNT(DISTINCT DES_VARIEDADREAL) AS cantidad_variedades FROM PROCESOS_ACT GROUP BY DES_CATEGORIAREAL
+2025-07-11 12:02:31,849 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-11 12:02:31] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La consulta que solicitaste te muestra cuántas variedades diferentes hay dentro de cada categoría. Por ejemplo, en la categoría "CAT I" hay varias variedades, mientras que en "CAT I CALIBR" y "CAT II" también hay algunas, pero en menor cantidad. Esto te permite entender la diversidad de variedades que existen en cada categoría específica.
+2025-07-11 12:02:32,133 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 148
