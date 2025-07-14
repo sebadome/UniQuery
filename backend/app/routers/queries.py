@@ -48,7 +48,6 @@ async def human_query(
     client_ip = fastapi_request.client.host if fastapi_request.client else None
     user_agent = fastapi_request.headers.get("user-agent", "")
 
-    # Prepara los datos para el log
     query_log_data = {
         "user_id": user_id,
         "user_email": user_email,
@@ -135,15 +134,21 @@ async def human_query(
 
         # (2) Si LLM no generó SQL
         if sql_result is None:
-            query_log_data["error_message"] = "No se pudo generar consulta SQL (LLM falló)."
+            # Si viene un dict con "error", lo tomamos
+            if isinstance(llm_json, dict) and "error" in llm_json:
+                error_msg = llm_json["error"]
+            else:
+                error_msg = "No se pudo generar consulta SQL (LLM falló)."
+            query_log_data["error_message"] = error_msg
             query_log_data["llm_raw_request"] = llm_json.get("raw_prompt") if isinstance(llm_json, dict) else None
             query_log_data["llm_raw_response"] = llm_json.get("raw_response") if isinstance(llm_json, dict) else None
             query_log_data["prompt_template_version"] = llm_json.get("prompt_template_version") if isinstance(llm_json, dict) else None
             query_log_id = log_query_attempt(query_log_data)
             raise HTTPException(
                 status_code=400,
-                detail="No se pudo generar consulta SQL en lenguaje natural. Intenta con otra pregunta."
+                detail=error_msg
             )
+
         if isinstance(sql_result, dict) and "error" in sql_result:
             query_log_data["error_message"] = sql_result["error"]
             query_log_id = log_query_attempt(query_log_data)

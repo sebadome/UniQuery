@@ -6,7 +6,7 @@ load_dotenv()  # Carga variables de entorno al inicio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Importa routers
+# Importa routers propios del proyecto
 from app.routers import connections
 from app.routers import queries     # El endpoint /human_query
 from app.routers import feedback    # Endpoints para feedback (like/dislike/comentarios)
@@ -18,21 +18,21 @@ app = FastAPI(
 )
 
 # --- Middleware CORS ---
-# En producción: Cambia allow_origins por el dominio de tu frontend
+# En producción: Cambia allow_origins por el dominio real de tu frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],            # Cambia esto por ["https://tu-frontend.com"] en PROD
+    allow_origins=["*"],            # Cambia esto por ["https://tu-frontend.com"] en producción
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Registro de routers ---
-# No uses prefix aquí (cada router tiene su propio prefix)
+# --- Registro de routers (sin prefix global, cada uno tiene su propio prefix) ---
 app.include_router(connections.router)
 app.include_router(queries.router)
 app.include_router(feedback.router)
 
+# --- Endpoints básicos ---
 @app.get("/")
 def root():
     return {"message": "Backend operativo!"}
@@ -40,3 +40,5 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+# Fin del archivo: sin cambios destructivos, mantiene compatibilidad total

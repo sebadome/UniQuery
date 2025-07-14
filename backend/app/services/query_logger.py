@@ -46,7 +46,6 @@ def log_query_attempt(data: Dict[str, Any]) -> Optional[int]:
                 record[k] = json.dumps(v, ensure_ascii=False)
             elif isinstance(v, str):
                 try:
-                    # Si ya es string JSON válido, se guarda directo
                     json.loads(v)
                     record[k] = v
                 except Exception:

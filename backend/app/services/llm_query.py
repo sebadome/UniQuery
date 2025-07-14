@@ -5,7 +5,6 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
 
-# --- Logging configuration ---
 LOG_FILE = os.path.join(os.path.dirname(__file__), '../../logs_llm.txt')
 logging.basicConfig(
     level=logging.INFO,
@@ -26,15 +25,10 @@ if not OPENAI_KEY:
 openai.api_key = OPENAI_KEY
 
 def get_current_date() -> str:
-    """Devuelve la fecha actual en formato DD/MM/AAAA."""
     return datetime.now().strftime("%d/%m/%Y")
 
-# --------- Ayudante para detectar preguntas de conteo de columnas ----------
+# --- Detectores de intención ---
 def is_count_columns_question(question: str) -> Optional[str]:
-    """
-    Detecta si la pregunta es sobre el número de columnas en una tabla y extrae el nombre de la tabla.
-    Retorna el nombre de la tabla si aplica, si no retorna None.
-    """
     import re
     patrones = [
         r"(?:cu[aá]ntas?|n[uú]mero de) columnas (?:tiene|hay en) (?:la tabla )?'?(\w+)'?",
@@ -43,7 +37,44 @@ def is_count_columns_question(question: str) -> Optional[str]:
     for pat in patrones:
         match = re.search(pat, question, re.IGNORECASE)
         if match:
-            return match.group(1)
+            nombre = match.group(1).lower()
+            if nombre not in ["la", "tabla", "columna", "columnas"]:
+                return nombre
+    return None
+
+def is_list_columns_question(question: str) -> Optional[str]:
+    # Detecta intenciones de LISTAR/DETALLAR/NOMBRAR columnas
+    import re
+    patrones = [
+        r"(?:cu[aá]les|n[oó]mbra|lista|detalla|dime|m[uú]estr[aá]|cu[aá]les son las) columnas(?: de la tabla)? ?'?(.*?)'?$",
+        r"lista(?:do)? de columnas(?: de la tabla)? ?'?(.*?)'?$",
+        r"necesito el detalle de las columnas(?: de la tabla)? ?'?(.*?)'?$",
+        r"nombre[s]? de las columnas(?: de la tabla)? ?'?(.*?)'?$",
+        r"(?:qué columnas|columns) tiene(?: la tabla)? ?'?(.*?)'?$"
+    ]
+    for pat in patrones:
+        match = re.search(pat, question, re.IGNORECASE)
+        if match:
+            nombre = match.group(1).strip().lower()
+            if nombre not in ["", "la", "tabla", "columna", "columnas"]:
+                return nombre
+    # Si pregunta directo "me puedes listar las columnas" sin tabla y hay tabla activa, return None
+    if any(word in question.lower() for word in ["list", "detalle", "nombre", "cuáles", "dime", "muéstrame", "detalla"]) and "column" in question.lower():
+        return ""
+    return None
+
+def is_count_rows_question(question: str) -> Optional[str]:
+    import re
+    patrones = [
+        r"(?:cu[aá]ntos?|n[uú]mero de) (?:registros|filas) (?:tiene|hay en) (?:la tabla )?'?(\w+)'?",
+        r"(?:registros|filas) de (?:la tabla )?'?(\w+)'?"
+    ]
+    for pat in patrones:
+        match = re.search(pat, question, re.IGNORECASE)
+        if match:
+            nombre = match.group(1).lower()
+            if nombre not in ["la", "tabla", "columna", "columnas"]:
+                return nombre
     return None
 
 def call_openai_generate_sql(
@@ -55,13 +86,6 @@ def call_openai_generate_sql(
     user_email: Optional[str] = None,
     return_metadata: bool = False
 ) -> Tuple[Optional[str], Dict[str, Any]]:
-    """
-    Envía una pregunta al modelo LLM para generar una consulta SQL segura y la estructura visual asociada.
-    Retorna:
-        (sql_query (str | None), metadata (dict))
-        Si solo se trata de saludo/presentación, retorna (None, meta) con clave "info".
-        Si ocurre error, retorna (None, meta) con clave "error".
-    """
     if not user_email:
         user_email = "usuario"
 
@@ -86,8 +110,46 @@ def call_openai_generate_sql(
             + "\n</diccionario_de_datos>"
         )
 
-    # ----------- MANEJO EXPLÍCITO PARA PREGUNTAS DE CONTEO DE COLUMNAS -----------
+    selected_table = dictionary_table or None
+
+    # --- Detección explícita de preguntas sobre columnas ---
+    table_for_list_columns = is_list_columns_question(question)
+    if table_for_list_columns is not None:
+        table_to_query = table_for_list_columns if table_for_list_columns else selected_table
+        if not table_to_query:
+            # Si no se puede inferir tabla, sigue al LLM normal
+            pass
+        else:
+            if db_type.lower() in ("postgres", "postgresql"):
+                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_to_query}';"
+            elif db_type.lower() == "sqlserver":
+                sql_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_to_query}';"
+            else:
+                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_to_query}';"
+            meta = {
+                "sql_query": sql_query,
+                "force_list_columns_message": True,
+                "table_name": table_to_query,
+                "raw_prompt": "NO LLM - Respuesta generada por backend para listado de columnas",
+                "raw_response": None,
+                "response_time_ms": 0,
+                "model": "backend-direct",
+                "tokens_prompt": None,
+                "tokens_completion": None,
+                "tokens_total": None,
+                "prompt_template_version": "backend-direct"
+            }
+            return sql_query, meta
+
     table_for_count = is_count_columns_question(question)
+    table_for_count_rows = is_count_rows_question(question)
+    if (not table_for_count and "column" in question.lower() and selected_table) or \
+       (table_for_count == "la" and selected_table):
+        table_for_count = selected_table
+    if (not table_for_count_rows and "registro" in question.lower() and selected_table) or \
+       (table_for_count_rows == "la" and selected_table):
+        table_for_count_rows = selected_table
+
     if table_for_count:
         if db_type.lower() in ("postgres", "postgresql"):
             sql_query = (
@@ -116,7 +178,50 @@ def call_openai_generate_sql(
         }
         return sql_query, meta
 
-    # ---------- PROMPT LLM (ESPAÑOL, robusto para gráficos y JSON estructurado) ----------
+    if table_for_count_rows:
+        if db_type.lower() in ("postgres", "postgresql"):
+            sql_query = (
+                f"SELECT COUNT(*) FROM {table_for_count_rows};"
+            )
+        elif db_type.lower() == "sqlserver":
+            sql_query = (
+                f"SELECT COUNT(*) FROM {table_for_count_rows};"
+            )
+        else:
+            sql_query = (
+                f"SELECT COUNT(*) FROM {table_for_count_rows};"
+            )
+        meta = {
+            "sql_query": sql_query,
+            "force_count_rows_message": True,
+            "table_name": table_for_count_rows,
+            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de registros",
+            "raw_response": None,
+            "response_time_ms": 0,
+            "model": "backend-direct",
+            "tokens_prompt": None,
+            "tokens_completion": None,
+            "tokens_total": None,
+            "prompt_template_version": "backend-direct"
+        }
+        return sql_query, meta
+
+    # ---------- PROMPT LLM para el resto de casos -----------
+    context_info = ""
+    if dictionary_table:
+        context_info = (
+            f"\n- Si el usuario te saluda o pregunta '¿quién eres?', responde: "
+            f'"¡Hola! Soy un asistente que te ayudará a responder preguntas sobre la tabla **{dictionary_table}** que tienes seleccionada. '
+            "Puedes consultarme por columnas, tipos de datos, resúmenes, valores, conteos y todo lo que necesites saber de esa tabla. '"
+            "\n- Si el usuario hace una pregunta sobre columnas, registros, estructura o datos sin especificar una tabla, responde SIEMPRE usando la tabla seleccionada '{dictionary_table}' y deja esto explícito en la respuesta."
+        )
+    else:
+        context_info = (
+            "\n- Si el usuario te saluda o pregunta '¿quién eres?', responde: "
+            '"¡Hola! Soy un asistente que te ayudará a responder preguntas sobre la base de datos que estás trabajando. '
+            "Dime sobre qué tabla te gustaría preguntar, y te ayudo con gusto.'"
+        )
+
     system_message = f"""
 Eres un asistente experto en transformar preguntas en lenguaje natural a consultas SQL SEGURAS y en sugerir la mejor visualización posible según los resultados.
 
@@ -143,11 +248,13 @@ Estructura estándar de tu respuesta (incluir solo lo que aplica):
 - El campo "list" es opcional, solo si es relevante.
 - El campo "table" es opcional, pero siempre incluye si la respuesta es tabular.
 - El campo "message" SIEMPRE debe estar cuando haya datos, como explicación para un usuario no técnico.
-- Si la pregunta es solo un saludo o no tiene sentido para SQL, responde SOLO con este JSON (sin ningún otro campo):
+- Si la pregunta es solo un saludo, responde SOLO con este JSON (sin ningún otro campo):
 
 {{
-  "info": "¡Hola! Soy tu asistente. Pregúntame sobre tus datos o la base de datos para comenzar."
+  "info": "¡Hola! Soy tu asistente. Te ayudo a responder preguntas sobre la tabla '{dictionary_table}' que tienes seleccionada. Pregúntame sobre columnas, datos o resúmenes para empezar."
 }}
+
+{context_info}
 
 IMPORTANTE:
 - Nunca inventes valores, nunca muestres ejemplos, nunca inventes números ni filas: siempre ejecuta la consulta SQL propuesta y muestra los resultados REALES de la base de datos, sin modificar, resumir o simular.
@@ -207,7 +314,7 @@ Hoy es {get_current_date()}.
         meta["tokens_completion"] = getattr(usage, "completion_tokens", None)
         meta["tokens_total"] = getattr(usage, "total_tokens", None)
 
-    meta["prompt_template_version"] = "v2.1-realdata"
+    meta["prompt_template_version"] = "v2.4-columns-detect"
 
     try:
         resp_json = json.loads(content)
@@ -217,7 +324,6 @@ Hoy es {get_current_date()}.
                 append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | Query bloqueada por seguridad: {resp_json['sql_query']}")
                 return None, {"error": "Consulta no permitida por seguridad. (Intento de modificar datos)"}
             append_log_file(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {log_prefix} | SQL generado: {resp_json['sql_query']}")
-            # Incorpora metadatos y respuesta JSON cruda
             meta.update(resp_json)
             return str(resp_json["sql_query"]), meta
         elif "info" in resp_json:
@@ -244,9 +350,6 @@ def call_openai_explain_answer(
     user_email: Optional[str] = None,
     return_metadata: bool = False
 ) -> Tuple[str, Dict[str, Any]]:
-    """
-    Explica un resultado tabular para usuarios de negocio, NO técnicos.
-    """
     if not user_email:
         user_email = "usuario"
 

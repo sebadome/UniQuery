@@ -128,6 +128,7 @@ def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[
     connection = ensure_password_decrypted(connection)
     db_type = connection.get("db_type")
     if db_type in ("postgres", "postgresql"):
+        conn, cursor = None, None
         try:
             conn = psycopg2.connect(
                 host=connection["host"],
@@ -140,13 +141,17 @@ def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[
             cursor.execute(sql_query)
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
-            cursor.close()
-            conn.close()
             return columns, [list(row) for row in rows]
         except Exception as e:
             print(f"[DB][Postgres] Error ejecutando SQL: {e}")
             raise
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     elif db_type == "sqlserver":
+        conn, cursor = None, None
         try:
             conn_str = get_sqlserver_conn_str(connection)
             conn = pyodbc.connect(conn_str)
@@ -154,12 +159,15 @@ def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[
             cursor.execute(sql_query)
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
-            cursor.close()
-            conn.close()
             return columns, [list(row) for row in rows]
         except Exception as e:
             print(f"[DB][SQLServer] Error ejecutando SQL: {e}")
             raise
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
     else:
         raise Exception("Tipo de base de datos no soportado para ejecución SQL.")
 
