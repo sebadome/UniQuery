@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import {
   Bar, Line, Pie, Doughnut, Scatter
 } from "react-chartjs-2";
@@ -6,11 +6,18 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement,
   PointElement, LineElement, Title, Tooltip as ChartTooltip, Legend, ArcElement, Filler
 } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Maximize2, X } from "lucide-react";
+import { Maximize2, X, Download } from "lucide-react";
 
-const chartThumbnails: Record<string, JSX.Element> = {
+ChartJS.register(
+  CategoryScale, LinearScale, BarElement,
+  PointElement, LineElement, Title, ChartTooltip, Legend, ArcElement, Filler,
+  ChartDataLabels
+);
+
+const chartThumbnails = {
   bar:   <svg width="34" height="18"><rect x="3" y="8" width="3" height="7" fill="#60a5fa"/><rect x="10" y="4" width="3" height="11" fill="#60a5fa"/><rect x="17" y="1" width="3" height="14" fill="#60a5fa"/><rect x="24" y="11" width="3" height="4" fill="#60a5fa"/></svg>,
   line:  <svg width="34" height="18"><polyline points="3,15 10,12 17,4 24,10" fill="none" stroke="#34d399" strokeWidth="2"/><circle cx="3" cy="15" r="1.5" fill="#34d399"/><circle cx="10" cy="12" r="1.5" fill="#34d399"/><circle cx="17" cy="4" r="1.5" fill="#34d399"/><circle cx="24" cy="10" r="1.5" fill="#34d399"/></svg>,
   area:  <svg width="34" height="18"><polygon points="3,15 10,12 17,4 24,10 24,17 3,17" fill="#c7d2fe"/><polyline points="3,15 10,12 17,4 24,10" fill="none" stroke="#6366f1" strokeWidth="2"/></svg>,
@@ -19,20 +26,13 @@ const chartThumbnails: Record<string, JSX.Element> = {
   scatter: <svg width="34" height="18"><circle cx="5" cy="14" r="2" fill="#f43f5e"/><circle cx="14" cy="7" r="2" fill="#f43f5e"/><circle cx="25" cy="12" r="2" fill="#f43f5e"/><circle cx="30" cy="5" r="2" fill="#f43f5e"/></svg>,
 };
 
-ChartJS.register(
-  CategoryScale, LinearScale, BarElement,
-  PointElement, LineElement, Title, ChartTooltip, Legend, ArcElement, Filler
-);
+const colorPalette = [
+  "#4F46E5", "#10B981", "#F59E42", "#EF4444", "#6366F1",
+  "#FBBF24", "#14B8A6", "#D946EF", "#F43F5E", "#A3E635",
+  "#3B82F6", "#0EA5E9", "#E11D48", "#7C3AED", "#65A30D"
+];
 
-type ChartType = "bar" | "line" | "area" | "pie" | "doughnut" | "scatter";
-
-interface ResultChartProps {
-  columns: string[];
-  rows: (string | number | null)[][];
-  height?: number; // opcional: para usar más grande en el modal
-}
-
-function isNumeric(value: any) {
+function isNumeric(value) {
   if (typeof value === "number") return true;
   if (typeof value === "string") {
     const v = value.replace(/,/g, ".");
@@ -40,24 +40,11 @@ function isNumeric(value: any) {
   }
   return false;
 }
-function isDate(value: string) {
+function isDate(value) {
   return /^\d{4}-\d{2}-\d{2}/.test(value) || /^\d{2}\/\d{2}\/\d{4}/.test(value);
 }
 
-const colorPalette = [
-  "#4F46E5", "#10B981", "#F59E42", "#EF4444", "#6366F1",
-  "#FBBF24", "#14B8A6", "#D946EF", "#F43F5E", "#A3E635",
-  "#3B82F6", "#0EA5E9", "#E11D48", "#7C3AED", "#65A30D"
-];
-
-function suggestChartType({
-  xCol, yCols, columns, rows,
-}: {
-  xCol: string,
-  yCols: string[],
-  columns: string[],
-  rows: (string | number | null)[][]
-}): ChartType {
+function suggestChartType({ xCol, yCols, columns, rows }) {
   const xIdx = columns.indexOf(xCol);
   const yIdxs = yCols.map(col => columns.indexOf(col));
   const labels = rows.map(r => r[xIdx]);
@@ -77,7 +64,7 @@ function suggestChartType({
   return "bar";
 }
 
-const recommendedData: Record<ChartType, string> = {
+const recommendedData = {
   bar: "Categorías (texto) vs. valores numéricos",
   line: "Fechas (serie temporal) vs. valores numéricos",
   area: "Fechas vs. valores numéricos (área bajo curva)",
@@ -86,7 +73,7 @@ const recommendedData: Record<ChartType, string> = {
   scatter: "Dos variables numéricas (XY)"
 };
 
-function getSuggestionReason(type: ChartType, xCol: string, yCols: string[], labels: any[], yVals: any[][]) {
+function getSuggestionReason(type, xCol, yCols, labels, yVals) {
   if (type === "line" && yCols.length === 1) return "Se sugiere gráfico de líneas porque el eje X parece una serie temporal (fechas).";
   if (type === "bar" && yCols.length === 1) return "Se sugiere gráfico de barras porque el eje X es categórico y el eje Y es numérico.";
   if ((type === "pie" || type === "doughnut") && yCols.length === 1) return "Se sugiere gráfico de torta/donut porque hay pocos valores distintos y todos son numéricos.";
@@ -96,39 +83,122 @@ function getSuggestionReason(type: ChartType, xCol: string, yCols: string[], lab
   return "Gráfico sugerido en base a los datos.";
 }
 
-export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
-  // --- Maximizar Modal ---
-  const [showModal, setShowModal] = useState(false);
-
-  // Validaciones iniciales
-  if (!columns || columns.length < 2 || !rows || rows.length === 0) {
-    return <div className="p-4 text-muted-foreground">No hay datos suficientes para graficar.</div>;
+function exportChartAsImage(chartRef, type = "png", filename = "grafico") {
+  if (chartRef?.current) {
+    const base64 = chartRef.current.toBase64Image(type === "jpeg" ? "image/jpeg" : "image/png", 1.0);
+    const link = document.createElement("a");
+    link.href = base64;
+    link.download = `${filename}.${type}`;
+    link.click();
   }
+}
 
-  const numericCols = columns.filter((_, colIdx) =>
-    rows.some((r) => isNumeric(r[colIdx]))
+function MultiSelectDropdown({ options, selected, onChange }) {
+  const [open, setOpen] = useState(false);
+  const toggleAll = () => {
+    if (selected.length === options.length) {
+      onChange([]);
+    } else {
+      onChange(options);
+    }
+  };
+  return (
+    <div className="relative" style={{ minWidth: 220 }}>
+      <button
+        type="button"
+        className="border px-2 py-1 rounded w-full text-left bg-white"
+        onClick={() => setOpen(v => !v)}
+      >
+        {selected.length === 0
+          ? "Selecciona categorías..."
+          : `${selected.length} categorías seleccionadas`}
+        <span className="float-right ml-2">&#9660;</span>
+      </button>
+      {open && (
+        <div
+          className="absolute z-50 bg-white border rounded shadow-md mt-1 max-h-60 overflow-auto"
+          style={{ minWidth: 200 }}
+        >
+          <div className="px-2 py-1 border-b">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selected.length === options.length}
+                onChange={toggleAll}
+              />
+              <span className="text-sm font-semibold">
+                {selected.length === options.length ? "Deseleccionar todo" : "Seleccionar todo"}
+              </span>
+            </label>
+          </div>
+          {options.map(opt => (
+            <label key={opt} className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100">
+              <input
+                type="checkbox"
+                checked={selected.includes(opt)}
+                onChange={() => {
+                  if (selected.includes(opt)) {
+                    onChange(selected.filter(v => v !== opt));
+                  } else {
+                    onChange([...selected, opt]);
+                  }
+                }}
+              />
+              <span className="text-sm">{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
   );
-  const defaultX = columns.find((col, i) =>
-    rows.every((r) => typeof r[i] === "string" || isDate(String(r[i])))
-  ) || columns[0];
-  const defaultYs = numericCols.length ? [numericCols[0]] : [columns[1]];
+}
+
+// --- COMPONENTE PRINCIPAL ---
+export function ResultChart({ columns, rows, height = 320 }) {
+  const [showModal, setShowModal] = useState(false);
+  const chartRef = useRef(null);
+
+  const numericCols = useMemo(() =>
+    columns.filter((_, colIdx) =>
+      rows.some((r) => isNumeric(r[colIdx]))
+    ), [columns, rows]
+  );
+  const defaultX = useMemo(() =>
+    columns.find((col, i) =>
+      rows.every((r) => typeof r[i] === "string" || isDate(String(r[i])))
+    ) || columns[0], [columns, rows]
+  );
+  const defaultYs = useMemo(() =>
+    numericCols.length ? [numericCols[0]] : [columns[1]], [numericCols, columns]
+  );
+
   const [xCol, setXCol] = useState(defaultX);
-  const [yCols, setYCols] = useState<string[]>(defaultYs);
+  const [yCols, setYCols] = useState(defaultYs);
+  const [showDataLabels, setShowDataLabels] = useState(true); // Nuevo: Checkbox
+
+  // Multi-categoría para Eje X
   const xIdx = columns.indexOf(xCol);
+  const categoryOptions = useMemo(() =>
+    Array.from(new Set(rows.map(r => r[xIdx]).filter(Boolean).map(String)))
+  , [rows, xIdx]);
+  const [categoryFilter, setCategoryFilter] = useState(categoryOptions);
+
+  useEffect(() => {
+    setCategoryFilter(categoryOptions);
+  }, [xCol, rows, xIdx]);
+
+  // --- Solo muestra los labels seleccionados ---
+  const filteredRows = useMemo(() =>
+    rows.filter(r => categoryFilter.includes(r[xIdx]?.toString() ?? "")), [rows, categoryFilter, xIdx]
+  );
+  const labels = useMemo(() =>
+    filteredRows.map(row =>
+      row[xIdx] !== null && row[xIdx] !== undefined ? String(row[xIdx]) : "(Sin valor)"
+    ), [filteredRows, xIdx]
+  );
   const yIdxs = yCols.map(yc => columns.indexOf(yc));
-
-  const suggestedType = useMemo(
-    () => suggestChartType({ xCol, yCols, columns, rows }),
-    [xCol, yCols, columns, rows]
-  );
-  const [chartType, setChartType] = useState<ChartType | null>(null);
-  const actualType = chartType ?? suggestedType;
-
-  const labels = rows.map(row =>
-    row[xIdx] !== null && row[xIdx] !== undefined ? String(row[xIdx]) : "(Sin valor)"
-  );
   const yValues = yIdxs.map((yIdx) =>
-    rows.map(row => {
+    filteredRows.map(row => {
       const value = row[yIdx];
       if (typeof value === "number") return value;
       if (typeof value === "string" && value !== "") {
@@ -139,13 +209,16 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
     })
   );
 
-  if (yValues.flat().filter((v) => typeof v === "number" && !isNaN(v)).length < 2) {
-    return (
-      <div className="p-4 text-muted-foreground">
-        No se puede graficar porque los valores de <b>{yCols.join(", ")}</b> no son numéricos o hay muy pocos datos.
-      </div>
-    );
-  }
+  const suggestedType = useMemo(
+    () => suggestChartType({ xCol, yCols, columns, rows }),
+    [xCol, yCols, columns, rows]
+  );
+  const [chartType, setChartType] = useState(null);
+  const actualType = chartType ?? suggestedType;
+
+  // --- Layout gráfico: SIEMPRE scroll local ---
+  const MIN_WIDTH_PER_LABEL = 75;
+  const chartAreaWidth = Math.max(700, labels.length * MIN_WIDTH_PER_LABEL);
 
   const datasets = yCols.map((yCol, i) => ({
     label: yCol,
@@ -153,46 +226,80 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
     backgroundColor: colorPalette[i % colorPalette.length],
     borderColor: colorPalette[i % colorPalette.length],
     borderWidth: 2,
+    barThickness: Math.max(8, 40 - Math.floor(labels.length / 8) * 5),
     fill: actualType === 'area',
     tension: 0.25,
     pointRadius: 4,
+    datalabels: {
+      display: showDataLabels,
+      anchor: actualType === "bar" ? "end" : "center",
+      align: actualType === "bar" ? "end" : "center",
+      color: "#222",
+      font: { weight: "bold" },
+      formatter: (value) => (typeof value === "number" ? value : ""),
+    }
   }));
+
+  // Pie & doughnut labels
+  function pieLabelFormatter(value, context) {
+    const total = context.chart.data.datasets[0].data.reduce(
+      (acc, curr) => acc + (typeof curr === "number" ? curr : 0), 0
+    );
+    if (!showDataLabels) return "";
+    if (total === 0) return "0";
+    const percent = Math.round((value / total) * 100);
+    return `${percent}%\n${value}`;
+  }
 
   const data = { labels, datasets };
   const pieData = {
     labels,
     datasets: [{
       data: yValues[0],
-      backgroundColor: colorPalette.slice(0, labels.length)
+      backgroundColor: colorPalette.slice(0, labels.length),
+      datalabels: {
+        display: showDataLabels,
+        color: "#222",
+        font: { weight: "bold" },
+        align: "center",
+        anchor: "center",
+        formatter: pieLabelFormatter
+      }
     }]
   };
   const scatterData = {
     datasets: [{
       label: `${yCols[0]} vs ${xCol}`,
-      data: rows.map(r => ({
+      data: filteredRows.map(r => ({
         x: isNumeric(r[xIdx]) ? Number(r[xIdx]) : null,
         y: isNumeric(r[yIdxs[0]]) ? Number(r[yIdxs[0]]) : null,
       })),
       backgroundColor: colorPalette[0]
     }]
   };
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top' as const },
+      legend: { position: 'top' },
       title: {
         display: true,
         text: `${yCols.join(", ")} por ${xCol}`,
       },
+      datalabels: {
+        display: showDataLabels,
+        color: "#222",
+        font: { weight: "bold" }
+      }
     },
     scales: {
-      x: { ticks: { autoSkip: true, maxTicksLimit: 20 } },
+      x: { ticks: { autoSkip: false } },
       y: { beginAtZero: true },
     },
   };
 
-  function isChartTypeEnabled(type: ChartType) {
+  function isChartTypeEnabled(type) {
     if ((type === "pie" || type === "doughnut") && (
       yCols.length !== 1 ||
       labels.length > 15 ||
@@ -200,8 +307,8 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
     )) return false;
     if (type === "scatter" && (
       yCols.length !== 1 ||
-      !isNumeric(rows[0]?.[xIdx]) ||
-      !isNumeric(rows[0]?.[yIdxs[0]])
+      !isNumeric(filteredRows[0]?.[xIdx]) ||
+      !isNumeric(filteredRows[0]?.[yIdxs[0]])
     )) return false;
     if (type === "line" && !labels.every(isDate)) return false;
     if (type === "area" && !labels.every(isDate)) return false;
@@ -209,25 +316,15 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
     return true;
   }
 
-  function handleYColChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleYColChange(e) {
     const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
     setYCols(selected.length > 0 ? selected : [numericCols[0] || columns[1]]);
     setChartType(null);
   }
 
-  // --- UI: Interactividad profesional + botón maximizar ---
-  return (
-    <>
-      <div className="bg-white rounded-xl p-4 my-3 shadow relative">
-        {/* Maximizar */}
-        <button
-          type="button"
-          aria-label="Maximizar gráfico"
-          className="absolute top-3 right-3 p-1 rounded-full bg-slate-100 hover:bg-slate-200"
-          onClick={() => setShowModal(true)}
-        >
-          <Maximize2 className="h-4 w-4 text-slate-600" />
-        </button>
+  function ChartPanel() {
+    return (
+      <>
         <TooltipProvider>
           <div className="flex flex-wrap gap-2 mb-2 items-center">
             <label className="text-sm">Eje X:</label>
@@ -240,6 +337,12 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
                 <option key={col} value={col}>{col}</option>
               ))}
             </select>
+            <span className="ml-2 text-sm">Filtrar categorías:</span>
+            <MultiSelectDropdown
+              options={categoryOptions}
+              selected={categoryFilter}
+              onChange={setCategoryFilter}
+            />
             <label className="text-sm ml-2">Eje Y:</label>
             <select
               value={yCols}
@@ -255,7 +358,7 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
             </select>
             <label className="text-sm ml-2">Tipo de gráfico:</label>
             <div className="flex gap-1">
-              {(["bar", "line", "area", "pie", "doughnut", "scatter"] as ChartType[]).map(type => (
+              {Object.keys(chartThumbnails).map(type => (
                 <Tooltip key={type}>
                   <TooltipTrigger asChild>
                     <button
@@ -304,26 +407,79 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
             <span className="ml-2 text-xs text-muted-foreground">
               ({actualType === suggestedType ? "sugerido" : "personalizado"})
             </span>
+            {/* Checkbox para mostrar/ocultar etiquetas */}
+            <label className="flex items-center ml-4 gap-2 text-xs font-medium">
+              <input
+                type="checkbox"
+                checked={showDataLabels}
+                onChange={e => setShowDataLabels(e.target.checked)}
+              />
+              Mostrar etiquetas de datos
+            </label>
+            <button
+              type="button"
+              aria-label="Exportar gráfico"
+              className="ml-4 p-1 rounded-full bg-slate-100 hover:bg-slate-200"
+              onClick={() => exportChartAsImage(chartRef, "png")}
+            >
+              <Download className="h-4 w-4 text-slate-600" />
+            </button>
           </div>
         </TooltipProvider>
-        <div style={{ height }}>
-          {actualType === "bar" && <Bar data={data} options={options} />}
-          {actualType === "line" && <Line data={data} options={options} />}
-          {actualType === "area" && <Line data={{ ...data, datasets: datasets.map(d => ({ ...d, fill: true })) }} options={options} />}
-          {actualType === "pie" && yCols.length === 1 && <Pie data={pieData} />}
-          {actualType === "doughnut" && yCols.length === 1 && <Doughnut data={pieData} />}
-          {actualType === "scatter" && yCols.length === 1 && <Scatter data={scatterData} options={options} />}
-          {actualType === "scatter" && yCols.length > 1 && (
-            <div className="p-2 text-sm text-orange-700">
-              El gráfico de dispersión solo soporta una variable Y.
-            </div>
-          )}
+        <div style={{ overflowX: "auto", width: "100%" }}>
+          <div style={{
+            width: chartAreaWidth,
+            minWidth: chartAreaWidth,
+            height,
+            paddingBottom: 8,
+            background: "white",
+            transition: "min-width 0.2s"
+          }}>
+            {(labels.length > 1 && yValues.flat().filter((v) => typeof v === "number" && !isNaN(v)).length >= 2) ? (
+              <>
+                {actualType === "bar" && <Bar ref={chartRef} data={data} options={options} plugins={[ChartDataLabels]} />}
+                {actualType === "line" && <Line ref={chartRef} data={data} options={options} plugins={[ChartDataLabels]} />}
+                {actualType === "area" && <Line ref={chartRef} data={{ ...data, datasets: datasets.map(d => ({ ...d, fill: true })) }} options={options} plugins={[ChartDataLabels]} />}
+                {actualType === "pie" && yCols.length === 1 && <Pie ref={chartRef} data={pieData} options={options} plugins={[ChartDataLabels]} />}
+                {actualType === "doughnut" && yCols.length === 1 && <Doughnut ref={chartRef} data={pieData} options={options} plugins={[ChartDataLabels]} />}
+                {actualType === "scatter" && yCols.length === 1 && <Scatter ref={chartRef} data={scatterData} options={options} />}
+                {actualType === "scatter" && yCols.length > 1 && (
+                  <div className="p-2 text-sm text-orange-700">
+                    El gráfico de dispersión solo soporta una variable Y.
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-4 text-muted-foreground flex flex-col gap-2" style={{ background: "white" }}>
+                No se puede graficar porque no hay suficientes datos. Selecciona al menos 2 categorías y valores numéricos.
+                <div className="text-xs text-muted-foreground text-right">
+                  Usa el <b>scroll horizontal</b> si hay muchas categorías.<br />
+                  <b>Arrastra</b> para moverte.<br />
+                  Haz <b>doble click</b> para resetear el zoom.
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </>
+    );
+  }
 
-      {/* Modal Maximizado */}
+  return (
+    <>
+      <div className="bg-white rounded-xl p-4 my-3 shadow relative">
+        <button
+          type="button"
+          aria-label="Maximizar gráfico"
+          className="absolute top-3 right-3 p-1 rounded-full bg-slate-100 hover:bg-slate-200"
+          onClick={() => setShowModal(true)}
+        >
+          <Maximize2 className="h-4 w-4 text-slate-600" />
+        </button>
+        <ChartPanel />
+      </div>
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-[98vw] w-[900px] md:w-[1200px] p-6">
+        <DialogContent className="max-w-[99vw] w-[99vw] md:w-[1400px] p-6" style={{ background: "white" }}>
           <DialogHeader className="flex flex-row justify-between items-center">
             <DialogTitle>Gráfico en grande</DialogTitle>
             <button
@@ -335,12 +491,19 @@ export function ResultChart({ columns, rows, height = 320 }: ResultChartProps) {
               <X className="h-5 w-5" />
             </button>
           </DialogHeader>
-          <div className="pt-2">
-            <ResultChart
-              columns={columns}
-              rows={rows}
-              height={600}
-            />
+          <div className="pt-2 w-full overflow-x-auto">
+            <div style={{
+              minWidth: chartAreaWidth,
+              minHeight: "55vh",
+              maxHeight: "80vh",
+            }}>
+              <ChartPanel />
+              <div className="text-xs text-slate-500 pt-2 text-center">
+                Usa el <b>scroll horizontal</b> si hay muchas categorías.<br />
+                <b>Arrastra</b> para moverte.<br />
+                Haz <b>doble click</b> para resetear el zoom.
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
