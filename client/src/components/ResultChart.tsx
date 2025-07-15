@@ -11,12 +11,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Maximize2, X, Download } from "lucide-react";
 
+// --- Configuración ChartJS ---
 ChartJS.register(
   CategoryScale, LinearScale, BarElement,
   PointElement, LineElement, Title, ChartTooltip, Legend, ArcElement, Filler,
   ChartDataLabels
 );
 
+// Iconos para los tipos de gráfico
 const chartThumbnails = {
   bar:   <svg width="34" height="18"><rect x="3" y="8" width="3" height="7" fill="#60a5fa"/><rect x="10" y="4" width="3" height="11" fill="#60a5fa"/><rect x="17" y="1" width="3" height="14" fill="#60a5fa"/><rect x="24" y="11" width="3" height="4" fill="#60a5fa"/></svg>,
   line:  <svg width="34" height="18"><polyline points="3,15 10,12 17,4 24,10" fill="none" stroke="#34d399" strokeWidth="2"/><circle cx="3" cy="15" r="1.5" fill="#34d399"/><circle cx="10" cy="12" r="1.5" fill="#34d399"/><circle cx="17" cy="4" r="1.5" fill="#34d399"/><circle cx="24" cy="10" r="1.5" fill="#34d399"/></svg>,
@@ -42,6 +44,19 @@ function isNumeric(value) {
 }
 function isDate(value) {
   return /^\d{4}-\d{2}-\d{2}/.test(value) || /^\d{2}\/\d{2}\/\d{4}/.test(value);
+}
+
+// --- NUEVO: Detección de tabla "no graficable" (por ejemplo: solo columnas tipo diccionario de datos) ---
+function isMetadataTable(columns) {
+  // Ejemplo típico: ["column_name", "data_type"] o ["Field", "Type"]
+  if (!columns || columns.length < 2) return false;
+  const names = columns.map(c => c.toLowerCase());
+  // Puedes agregar más patrones si tienes otras variantes
+  return (
+    (names.includes("column_name") && names.includes("data_type")) ||
+    (names.includes("field") && names.includes("type")) ||
+    (names.includes("nombre_columna") && names.includes("tipo_dato"))
+  );
 }
 
 function suggestChartType({ xCol, yCols, columns, rows }) {
@@ -158,6 +173,7 @@ export function ResultChart({ columns, rows, height = 320 }) {
   const [showModal, setShowModal] = useState(false);
   const chartRef = useRef(null);
 
+  // --- Detección de columnas numéricas ---
   const numericCols = useMemo(() =>
     columns.filter((_, colIdx) =>
       rows.some((r) => isNumeric(r[colIdx]))
@@ -174,7 +190,7 @@ export function ResultChart({ columns, rows, height = 320 }) {
 
   const [xCol, setXCol] = useState(defaultX);
   const [yCols, setYCols] = useState(defaultYs);
-  const [showDataLabels, setShowDataLabels] = useState(true); // Nuevo: Checkbox
+  const [showDataLabels, setShowDataLabels] = useState(true);
 
   // Multi-categoría para Eje X
   const xIdx = columns.indexOf(xCol);
@@ -322,7 +338,43 @@ export function ResultChart({ columns, rows, height = 320 }) {
     setChartType(null);
   }
 
+  // --- Panel de selección y gráfico ---
   function ChartPanel() {
+    // --- Nuevo: Mensaje para tablas no graficables (metadata, estructura, o sin datos numéricos) ---
+    if (isMetadataTable(columns)) {
+      return (
+        <div className="p-4 text-muted-foreground flex flex-col gap-2" style={{ background: "white" }}>
+          <b>No es posible graficar la estructura de la tabla.</b>
+          <div>
+            Esta vista muestra solo información descriptiva (nombre de columna y tipo de dato), por lo que no tiene valores numéricos para graficar.<br />
+            <span className="text-xs">
+              Si deseas ver un gráfico, consulta datos que incluyan valores numéricos,<br />
+              por ejemplo: <i>"¿Cuántos registros hay por zona?"</i> o <i>"Kilos exportados por semana"</i>.
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Mensaje por defecto para casos sin datos suficientes ---
+    const notEnoughData = (
+      <div className="p-4 text-muted-foreground flex flex-col gap-2" style={{ background: "white" }}>
+        <b>No se puede graficar con los datos actuales.</b>
+        <div>
+          Debes tener al menos 2 categorías y valores numéricos para generar un gráfico.<br />
+          <span className="text-xs">
+            Prueba consultando agregaciones, conteos o resúmenes por categoría para obtener resultados gráficos.
+          </span>
+        </div>
+        <div className="text-xs text-muted-foreground text-right">
+          Usa el <b>scroll horizontal</b> si hay muchas categorías.<br />
+          <b>Arrastra</b> para moverte.<br />
+          Haz <b>doble click</b> para resetear el zoom.
+        </div>
+      </div>
+    );
+
+    // --- Panel habitual de gráfico ---
     return (
       <>
         <TooltipProvider>
@@ -450,14 +502,7 @@ export function ResultChart({ columns, rows, height = 320 }) {
                 )}
               </>
             ) : (
-              <div className="p-4 text-muted-foreground flex flex-col gap-2" style={{ background: "white" }}>
-                No se puede graficar porque no hay suficientes datos. Selecciona al menos 2 categorías y valores numéricos.
-                <div className="text-xs text-muted-foreground text-right">
-                  Usa el <b>scroll horizontal</b> si hay muchas categorías.<br />
-                  <b>Arrastra</b> para moverte.<br />
-                  Haz <b>doble click</b> para resetear el zoom.
-                </div>
-              </div>
+              notEnoughData
             )}
           </div>
         </div>

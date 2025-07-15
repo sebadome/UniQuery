@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
 
+# --- Logging configuration ---
 LOG_FILE = os.path.join(os.path.dirname(__file__), '../../logs_llm.txt')
 logging.basicConfig(
     level=logging.INFO,
@@ -25,57 +26,85 @@ if not OPENAI_KEY:
 openai.api_key = OPENAI_KEY
 
 def get_current_date() -> str:
+    """Devuelve la fecha actual en formato DD/MM/AAAA."""
     return datetime.now().strftime("%d/%m/%Y")
 
-# --- Detectores de intención ---
-def is_count_columns_question(question: str) -> Optional[str]:
+# ----------- Detección inteligente de intención -----------
+
+def extract_table_name_from_question(question: str) -> Optional[str]:
+    """
+    Extrae explícitamente el nombre de la tabla si está presente en la pregunta.
+    """
     import re
-    patrones = [
-        r"(?:cu[aá]ntas?|n[uú]mero de) columnas (?:tiene|hay en) (?:la tabla )?'?(\w+)'?",
-        r"columnas de (?:la tabla )?'?(\w+)'?"
-    ]
-    for pat in patrones:
-        match = re.search(pat, question, re.IGNORECASE)
-        if match:
-            nombre = match.group(1).lower()
-            if nombre not in ["la", "tabla", "columna", "columnas"]:
-                return nombre
+    match = re.search(r"tabla\s*'?([a-zA-Z0-9_]+)'?", question, re.IGNORECASE)
+    if match:
+        nombre = match.group(1).lower()
+        if nombre not in ["la", "tabla", "columna", "columnas"]:
+            return nombre
     return None
 
-def is_list_columns_question(question: str) -> Optional[str]:
-    # Detecta intenciones de LISTAR/DETALLAR/NOMBRAR columnas
+def is_list_columns_question(question: str) -> bool:
+    """
+    Detecta si la pregunta pide **listar los nombres de las columnas** de una tabla.
+    """
     import re
+    q = question.lower().strip()
     patrones = [
-        r"(?:cu[aá]les|n[oó]mbra|lista|detalla|dime|m[uú]estr[aá]|cu[aá]les son las) columnas(?: de la tabla)? ?'?(.*?)'?$",
-        r"lista(?:do)? de columnas(?: de la tabla)? ?'?(.*?)'?$",
-        r"necesito el detalle de las columnas(?: de la tabla)? ?'?(.*?)'?$",
-        r"nombre[s]? de las columnas(?: de la tabla)? ?'?(.*?)'?$",
-        r"(?:qué columnas|columns) tiene(?: la tabla)? ?'?(.*?)'?$"
+        r"(?:cu[aá]les|c[uú]ales|n[oó]mbra|lista|detalla|d[aá]me|m[uú]estrame|menciona|nómbrame|puedes|quiero|me puedes)\s*(?:son)?\s*(?:las)?\s*columnas",
+        r"qué columnas (?:hay|existen)",
+        r"detalle de las columnas",
+        r"lista las columnas",
+        r"me puedes listar las columnas",
+        r"puedes listar las columnas",
+        r"muestrame las columnas",
+        r"detalla las columnas",
+        r"nombrame las columnas",
+        r"menciona las columnas",
     ]
     for pat in patrones:
-        match = re.search(pat, question, re.IGNORECASE)
-        if match:
-            nombre = match.group(1).strip().lower()
-            if nombre not in ["", "la", "tabla", "columna", "columnas"]:
-                return nombre
-    # Si pregunta directo "me puedes listar las columnas" sin tabla y hay tabla activa, return None
-    if any(word in question.lower() for word in ["list", "detalle", "nombre", "cuáles", "dime", "muéstrame", "detalla"]) and "column" in question.lower():
-        return ""
-    return None
+        if re.search(pat, q):
+            return True
+    return False
 
-def is_count_rows_question(question: str) -> Optional[str]:
+def is_count_columns_question(question: str) -> bool:
+    """
+    Detecta si la pregunta es sobre el **número de columnas** en una tabla.
+    """
     import re
+    q = question.lower().strip()
     patrones = [
-        r"(?:cu[aá]ntos?|n[uú]mero de) (?:registros|filas) (?:tiene|hay en) (?:la tabla )?'?(\w+)'?",
-        r"(?:registros|filas) de (?:la tabla )?'?(\w+)'?"
+        r"cu[aá]ntas columnas",
+        r"cuantas columnas",
+        r"n[uú]mero de columnas",
+        r"columnas tiene",
+        r"columnas hay"
     ]
     for pat in patrones:
-        match = re.search(pat, question, re.IGNORECASE)
-        if match:
-            nombre = match.group(1).lower()
-            if nombre not in ["la", "tabla", "columna", "columnas"]:
-                return nombre
-    return None
+        if re.search(pat, q):
+            return True
+    return False
+
+def is_count_rows_question(question: str) -> bool:
+    """
+    Detecta si la pregunta es sobre el **número de registros (filas)** de una tabla.
+    """
+    import re
+    q = question.lower().strip()
+    patrones = [
+        r"cu[aá]ntos registros",
+        r"cuantos registros",
+        r"cu[aá]ntas filas",
+        r"cuantas filas",
+        r"n[uú]mero de registros",
+        r"registros hay",
+        r"filas hay"
+    ]
+    for pat in patrones:
+        if re.search(pat, q):
+            return True
+    return False
+
+# ----------- Lógica principal para generación de SQL -----------
 
 def call_openai_generate_sql(
     question: str,
@@ -110,27 +139,23 @@ def call_openai_generate_sql(
             + "\n</diccionario_de_datos>"
         )
 
-    selected_table = dictionary_table or None
+    selected_table = dictionary_table
 
-    # --- Detección explícita de preguntas sobre columnas ---
-    table_for_list_columns = is_list_columns_question(question)
-    if table_for_list_columns is not None:
-        table_to_query = table_for_list_columns if table_for_list_columns else selected_table
-        if not table_to_query:
-            # Si no se puede inferir tabla, sigue al LLM normal
-            pass
-        else:
+    # ----------- MANEJO PARA LISTAR COLUMNAS (preferencia si la intención es ambigua) -----------
+    if is_list_columns_question(question):
+        table_name = extract_table_name_from_question(question) or selected_table
+        if table_name:
             if db_type.lower() in ("postgres", "postgresql"):
-                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_to_query}';"
+                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' ORDER BY ordinal_position;"
             elif db_type.lower() == "sqlserver":
-                sql_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_to_query}';"
+                sql_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}' ORDER BY ORDINAL_POSITION;"
             else:
-                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_to_query}';"
+                sql_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' ORDER BY ordinal_position;"
             meta = {
                 "sql_query": sql_query,
                 "force_list_columns_message": True,
-                "table_name": table_to_query,
-                "raw_prompt": "NO LLM - Respuesta generada por backend para listado de columnas",
+                "table_name": table_name,
+                "raw_prompt": "NO LLM - Respuesta generada por backend para listar columnas",
                 "raw_response": None,
                 "response_time_ms": 0,
                 "model": "backend-direct",
@@ -141,72 +166,69 @@ def call_openai_generate_sql(
             }
             return sql_query, meta
 
-    table_for_count = is_count_columns_question(question)
-    table_for_count_rows = is_count_rows_question(question)
-    if (not table_for_count and "column" in question.lower() and selected_table) or \
-       (table_for_count == "la" and selected_table):
-        table_for_count = selected_table
-    if (not table_for_count_rows and "registro" in question.lower() and selected_table) or \
-       (table_for_count_rows == "la" and selected_table):
-        table_for_count_rows = selected_table
+    # ----------- MANEJO EXPLÍCITO PARA CONTEO DE COLUMNAS -----------
+    if is_count_columns_question(question):
+        table_name = extract_table_name_from_question(question) or selected_table
+        if table_name:
+            if db_type.lower() in ("postgres", "postgresql"):
+                sql_query = (
+                    f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_name}';"
+                )
+            elif db_type.lower() == "sqlserver":
+                sql_query = (
+                    f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}';"
+                )
+            else:
+                sql_query = (
+                    f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_name}';"
+                )
+            meta = {
+                "sql_query": sql_query,
+                "force_count_columns_message": True,
+                "table_name": table_name,
+                "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de columnas",
+                "raw_response": None,
+                "response_time_ms": 0,
+                "model": "backend-direct",
+                "tokens_prompt": None,
+                "tokens_completion": None,
+                "tokens_total": None,
+                "prompt_template_version": "backend-direct"
+            }
+            return sql_query, meta
 
-    if table_for_count:
-        if db_type.lower() in ("postgres", "postgresql"):
-            sql_query = (
-                f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_for_count}';"
-            )
-        elif db_type.lower() == "sqlserver":
-            sql_query = (
-                f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_for_count}';"
-            )
-        else:
-            sql_query = (
-                f"SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '{table_for_count}';"
-            )
-        meta = {
-            "sql_query": sql_query,
-            "force_count_columns_message": True,
-            "table_name": table_for_count,
-            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de columnas",
-            "raw_response": None,
-            "response_time_ms": 0,
-            "model": "backend-direct",
-            "tokens_prompt": None,
-            "tokens_completion": None,
-            "tokens_total": None,
-            "prompt_template_version": "backend-direct"
-        }
-        return sql_query, meta
+    # --------- MANEJO EXPLÍCITO PARA CONTEO DE REGISTROS (filas) ----------
+    if is_count_rows_question(question):
+        table_name = extract_table_name_from_question(question) or selected_table
+        if table_name:
+            if db_type.lower() in ("postgres", "postgresql"):
+                sql_query = (
+                    f"SELECT COUNT(*) FROM {table_name};"
+                )
+            elif db_type.lower() == "sqlserver":
+                sql_query = (
+                    f"SELECT COUNT(*) FROM {table_name};"
+                )
+            else:
+                sql_query = (
+                    f"SELECT COUNT(*) FROM {table_name};"
+                )
+            meta = {
+                "sql_query": sql_query,
+                "force_count_rows_message": True,
+                "table_name": table_name,
+                "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de registros",
+                "raw_response": None,
+                "response_time_ms": 0,
+                "model": "backend-direct",
+                "tokens_prompt": None,
+                "tokens_completion": None,
+                "tokens_total": None,
+                "prompt_template_version": "backend-direct"
+            }
+            return sql_query, meta
 
-    if table_for_count_rows:
-        if db_type.lower() in ("postgres", "postgresql"):
-            sql_query = (
-                f"SELECT COUNT(*) FROM {table_for_count_rows};"
-            )
-        elif db_type.lower() == "sqlserver":
-            sql_query = (
-                f"SELECT COUNT(*) FROM {table_for_count_rows};"
-            )
-        else:
-            sql_query = (
-                f"SELECT COUNT(*) FROM {table_for_count_rows};"
-            )
-        meta = {
-            "sql_query": sql_query,
-            "force_count_rows_message": True,
-            "table_name": table_for_count_rows,
-            "raw_prompt": "NO LLM - Respuesta generada por backend para conteo de registros",
-            "raw_response": None,
-            "response_time_ms": 0,
-            "model": "backend-direct",
-            "tokens_prompt": None,
-            "tokens_completion": None,
-            "tokens_total": None,
-            "prompt_template_version": "backend-direct"
-        }
-        return sql_query, meta
-
-    # ---------- PROMPT LLM para el resto de casos -----------
+    # ---------- PROMPT LLM (cuando no hay claridad en la intención) ----------
     context_info = ""
     if dictionary_table:
         context_info = (
@@ -258,6 +280,7 @@ Estructura estándar de tu respuesta (incluir solo lo que aplica):
 
 IMPORTANTE:
 - Nunca inventes valores, nunca muestres ejemplos, nunca inventes números ni filas: siempre ejecuta la consulta SQL propuesta y muestra los resultados REALES de la base de datos, sin modificar, resumir o simular.
+- Si el usuario solicita **listar las columnas de una tabla**, genera una consulta que retorne los nombres de las columnas (NO el conteo, sino la lista).
 - Para preguntas como "¿cuántos registros hay en la tabla X?", debes devolver la consulta SQL correspondiente y mostrar el resultado real.
 - Si el usuario pide "muestra la tabla X", limita a 100 filas usando LIMIT 100, y aclara en el message que se está mostrando solo una parte de los datos si la tabla es muy grande.
 - Usa nombres de tablas y campos EXACTAMENTE como aparecen en el esquema.
@@ -314,7 +337,7 @@ Hoy es {get_current_date()}.
         meta["tokens_completion"] = getattr(usage, "completion_tokens", None)
         meta["tokens_total"] = getattr(usage, "total_tokens", None)
 
-    meta["prompt_template_version"] = "v2.4-columns-detect"
+    meta["prompt_template_version"] = "v2.7-intent-list-columns-hybrid"
 
     try:
         resp_json = json.loads(content)
