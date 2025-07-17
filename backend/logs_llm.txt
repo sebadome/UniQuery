@@ -3461,3 +3461,40 @@ Estas columnas ayudan a organizar y categorizar los datos relacionados con proce
 2025-07-14 21:36:33,410 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 287
 2025-07-14 21:53:28,274 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
 2025-07-14 21:53:43,355 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:35:25,674 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:35:26,583 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:35:30,478 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:35:56,592 INFO:root:[ACTIVATE_CONN] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 activó conexión 1c6cf242-11e6-466a-aac5-2ab18a60e113
+2025-07-15 13:35:57,234 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:35:58,620 INFO:root:[ACTIVATE_CONN] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 activó conexión 1c6cf242-11e6-466a-aac5-2ab18a60e113
+2025-07-15 13:35:58,986 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:36:04,464 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:36:05,091 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'PROCESOS_ANT']
+2025-07-15 13:36:09,274 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:36:10,966 INFO:root:[DEACTIVATE_CONN] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 desconectó conexión activa
+2025-07-15 13:36:11,356 INFO:root:[LIST_CONNS] 1 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:37:53,188 INFO:root:[TEST_CONN] Intentando conexión DB: sqlserver host=10.100.8.50 db=GESTION00
+2025-07-15 13:37:53,556 INFO:root:[TEST_CONN] Conexión exitosa.
+2025-07-15 13:37:53,667 INFO:root:[GET_TABLES_ADHOC] Tablas obtenidas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'RECEPC_GRANEL_ACT', 'RECEPC_GRANEL_ANT']
+2025-07-15 13:38:17,093 INFO:root:[CREATE_CONN] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 creando conexión: DW-GESTION00 (sqlserver)
+2025-07-15 13:38:20,509 INFO:root:[CREATE_CONN] Guardado OK para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:38:21,159 INFO:root:[LIST_CONNS] 2 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:38:21,560 INFO:root:[LIST_CONNS] 2 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:38:29,461 INFO:root:[ACTIVATE_CONN] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 activó conexión 7f38ab7a-2c33-474a-8c8c-572cbc396bc6
+2025-07-15 13:38:29,870 INFO:root:[LIST_CONNS] 2 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:38:33,709 INFO:root:[LIST_CONNS] 2 conexiones encontradas para usuario f59d4deb-b575-4e1b-8046-0b71e0509325
+2025-07-15 13:38:34,100 INFO:root:[LIST_TABLES] Usuario f59d4deb-b575-4e1b-8046-0b71e0509325 obtuvo tablas: ['EST_GENERAL_ACT', 'EST_GENERAL_ANT', 'PROCESOS_ACT', 'RECEPC_GRANEL_ACT', 'RECEPC_GRANEL_ANT']
+[2025-07-15 13:38:46] Usuario: sdomenechp@gmail.com | Pregunta: hola
+[2025-07-15 13:38:46] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Pregunta humana recibida.
+[2025-07-15 13:38:46] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Prompt enviado a OpenAI (system/user)
+2025-07-15 13:38:50,401 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-15 13:38:50] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Respuesta cruda: {
+  "info": "¡Hola! Soy tu asistente. Te ayudo a responder preguntas sobre la tabla 'PROCESOS_ACT' que tienes seleccionada. Pregúntame sobre columnas, datos o resúmenes para empezar."
+}
+[2025-07-15 13:38:50] [USER: sdomenechp@gmail.com] [PREGUNTA] hola | Mensaje informativo del LLM: ¡Hola! Soy tu asistente. Te ayudo a responder preguntas sobre la tabla 'PROCESOS_ACT' que tienes seleccionada. Pregúntame sobre columnas, datos o resúmenes para empezar.
+2025-07-15 13:38:50,686 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 288
+[2025-07-15 13:39:03] Usuario: sdomenechp@gmail.com | Pregunta: cuantos registros tiene la tabla?
+[2025-07-15 13:39:03] [USER: sdomenechp@gmail.com] [PREGUNTA] cuantos registros tiene la tabla? | Pregunta humana recibida.
+2025-07-15 13:39:06,518 INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-07-15 13:39:06] [USER: sdomenechp@gmail.com] [EXPLAIN] Explicación generada: La tabla que estás consultando tiene un total de 390,572 registros. Esto significa que hay 390,572 filas de información almacenadas en esa tabla.
+2025-07-15 13:39:06,797 INFO:root:[QUERY_LOGGER] Log insertado en query_logs con ID 289

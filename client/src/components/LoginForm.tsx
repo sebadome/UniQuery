@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useLocation } from "wouter"; // Navegación programática
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,7 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [, navigate] = useLocation(); // Para navegar a /forgot-password
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -35,9 +37,9 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const success = await onLogin(data.username, data.password);
-      
+
       if (!success) {
         setError('Credenciales inválidas. Por favor verifica tu usuario y contraseña.');
       }
@@ -48,13 +50,17 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigate('/forgot-password');
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
         <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-          <img 
-            src={logoUnifrutti} 
-            alt="Unifrutti Logo" 
+          <img
+            src={logoUnifrutti}
+            alt="Unifrutti Logo"
             className="w-full h-full object-contain"
           />
         </div>
@@ -77,6 +83,7 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
                 id="username"
                 type="text"
                 placeholder="Ingresa tu usuario o email"
+                autoComplete="username"
                 {...register('username')}
                 disabled={isLoading}
               />
@@ -92,6 +99,7 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Ingresa tu contraseña"
+                  autoComplete="current-password"
                   {...register('password')}
                   disabled={isLoading}
                 />
@@ -100,6 +108,8 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -130,7 +140,7 @@ export function LoginForm({ onLogin, onShowRegister }: LoginFormProps) {
               <button
                 type="button"
                 className="text-sm text-primary hover:text-primary/80"
-                onClick={onShowRegister}
+                onClick={handleForgotPassword}
                 disabled={isLoading}
               >
                 ¿Olvidaste tu contraseña?
