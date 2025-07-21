@@ -3,8 +3,28 @@
 from typing import Dict, Tuple, List, Any
 import psycopg2
 import pyodbc
+from decimal import Decimal
+from datetime import datetime, date
 
 from app.utils.crypto import decrypt_password
+
+# --- Serializador seguro para cualquier valor raro ---
+def sanitize_value(value):
+    """
+    Convierte a tipos seguros para JSON/log/llm:
+      - Decimal -> float
+      - datetime/date -> str (ISO)
+      - list/tuple/dict -> recursivo
+    """
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {k: sanitize_value(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [sanitize_value(v) for v in value]
+    return value
 
 def ensure_password_decrypted(connection: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -123,7 +143,7 @@ def get_sqlserver_schema(connection: Dict[str, Any]) -> str:
 
 def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[str], List[List[Any]]]:
     """
-    Ejecuta una consulta SQL y retorna ([column_names], [rows])
+    Ejecuta una consulta SQL y retorna ([column_names], [rows]), todos los valores ya saneados.
     """
     connection = ensure_password_decrypted(connection)
     db_type = connection.get("db_type")
@@ -141,7 +161,9 @@ def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[
             cursor.execute(sql_query)
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
-            return columns, [list(row) for row in rows]
+            # Sanear filas para Decimals, fechas, etc.
+            sanitized_rows = [ [sanitize_value(v) for v in row] for row in rows ]
+            return columns, sanitized_rows
         except Exception as e:
             print(f"[DB][Postgres] Error ejecutando SQL: {e}")
             raise
@@ -159,7 +181,8 @@ def execute_sql_query(connection: Dict[str, Any], sql_query: str) -> Tuple[List[
             cursor.execute(sql_query)
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
-            return columns, [list(row) for row in rows]
+            sanitized_rows = [ [sanitize_value(v) for v in row] for row in rows ]
+            return columns, sanitized_rows
         except Exception as e:
             print(f"[DB][SQLServer] Error ejecutando SQL: {e}")
             raise

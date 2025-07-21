@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
+from decimal import Decimal
 
 # --- Logging configuration ---
 LOG_FILE = os.path.join(os.path.dirname(__file__), '../../logs_llm.txt')
@@ -29,12 +30,27 @@ def get_current_date() -> str:
     """Devuelve la fecha actual en formato DD/MM/AAAA."""
     return datetime.now().strftime("%d/%m/%Y")
 
+# --------- Utilidad para sanitizar valores para JSON/logs ---------
+def sanitize_value(val):
+    if isinstance(val, Decimal):
+        return float(val)
+    elif isinstance(val, (datetime, )):
+        return val.isoformat()
+    elif isinstance(val, bytes):
+        try:
+            return val.decode()
+        except Exception:
+            return str(val)
+    elif isinstance(val, (list, tuple)):
+        return [sanitize_value(v) for v in val]
+    elif isinstance(val, dict):
+        return {k: sanitize_value(v) for k, v in val.items()}
+    else:
+        return val
+
 # ----------- Detección inteligente de intención -----------
 
 def extract_table_name_from_question(question: str) -> Optional[str]:
-    """
-    Extrae explícitamente el nombre de la tabla si está presente en la pregunta.
-    """
     import re
     match = re.search(r"tabla\s*'?([a-zA-Z0-9_]+)'?", question, re.IGNORECASE)
     if match:
@@ -44,9 +60,6 @@ def extract_table_name_from_question(question: str) -> Optional[str]:
     return None
 
 def is_list_columns_question(question: str) -> bool:
-    """
-    Detecta si la pregunta pide **listar los nombres de las columnas** de una tabla.
-    """
     import re
     q = question.lower().strip()
     patrones = [
@@ -67,9 +80,6 @@ def is_list_columns_question(question: str) -> bool:
     return False
 
 def is_count_columns_question(question: str) -> bool:
-    """
-    Detecta si la pregunta es sobre el **número de columnas** en una tabla.
-    """
     import re
     q = question.lower().strip()
     patrones = [
@@ -85,9 +95,6 @@ def is_count_columns_question(question: str) -> bool:
     return False
 
 def is_count_rows_question(question: str) -> bool:
-    """
-    Detecta si la pregunta es sobre el **número de registros (filas)** de una tabla.
-    """
     import re
     q = question.lower().strip()
     patrones = [
@@ -376,9 +383,9 @@ def call_openai_explain_answer(
     if not user_email:
         user_email = "usuario"
 
-    example_rows = "\n".join(
-        [str(dict(zip(columns, row))) for row in rows[:3]]
-    )
+    # SANITIZA ejemplos de filas para evitar Decimals o valores raros
+    sanitized_rows = [dict(zip(columns, [sanitize_value(cell) for cell in row])) for row in rows[:3]]
+    example_rows = "\n".join([str(r) for r in sanitized_rows])
 
     system_message = f"""
 Eres un asistente especializado en explicar resultados SQL de bases de datos para usuarios NO TÉCNICOS.

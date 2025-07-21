@@ -10,7 +10,8 @@ from app.services.supabase_service import get_active_connection_for_user
 from app.services.db_connector import get_database_schema, execute_sql_query
 from app.services.llm_query import (
     call_openai_generate_sql,
-    call_openai_explain_answer
+    call_openai_explain_answer,
+    sanitize_value  # <--- Importa sanitize_value para limpiar datos si lo tienes en llm_query.py
 )
 from app.services.query_logger import log_query_attempt
 
@@ -79,6 +80,7 @@ async def human_query(
         "sql_raw_result": None
     }
     query_log_id = None
+    exec_time = None  # <--- Se define aquí para que esté disponible en cualquier caso
 
     try:
         # 1. Recupera la conexión activa
@@ -134,7 +136,6 @@ async def human_query(
 
         # (2) Si LLM no generó SQL
         if sql_result is None:
-            # Si viene un dict con "error", lo tomamos
             if isinstance(llm_json, dict) and "error" in llm_json:
                 error_msg = llm_json["error"]
             else:
@@ -220,9 +221,13 @@ async def human_query(
     query_log_id = log_query_attempt(query_log_data)
 
     # 6. Prepara la respuesta enriquecida con todo lo relevante
-    chart = llm_json.get("chart") if isinstance(llm_json, dict) else None
-    lista = llm_json.get("list") if isinstance(llm_json, dict) else None
-    tabla = llm_json.get("table") if isinstance(llm_json, dict) else None
+    def safe_data(val):
+        # Sanitiza cualquier valor potencialmente problemático
+        return sanitize_value(val) if 'sanitize_value' in globals() else val
+
+    chart = safe_data(llm_json.get("chart")) if isinstance(llm_json, dict) else None
+    lista = safe_data(llm_json.get("list")) if isinstance(llm_json, dict) else None
+    tabla = safe_data(llm_json.get("table")) if isinstance(llm_json, dict) else None
 
     return HumanQueryResponse(
         answer=llm_json.get("message", answer_text) if isinstance(llm_json, dict) and llm_json.get("message") else answer_text,

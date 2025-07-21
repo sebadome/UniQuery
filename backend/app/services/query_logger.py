@@ -5,10 +5,18 @@ import json
 import logging
 from datetime import datetime
 from typing import Optional, Any, Dict
+from decimal import Decimal
 
 from sqlalchemy import create_engine, Table, MetaData
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import SQLAlchemyError
+
+# --- Serializador seguro para JSON ---
+def default_serializer(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    # Agrega aquí más tipos personalizados si necesitas
+    return str(obj)
 
 # --- Compatibilidad con SUPABASE_DB_URL o DATABASE_URL ---
 SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL")
@@ -43,15 +51,15 @@ def log_query_attempt(data: Dict[str, Any]) -> Optional[int]:
             if v is None:
                 record[k] = None
             elif isinstance(v, (dict, list)):
-                record[k] = json.dumps(v, ensure_ascii=False)
+                record[k] = json.dumps(v, ensure_ascii=False, default=default_serializer)
             elif isinstance(v, str):
                 try:
                     json.loads(v)
                     record[k] = v
                 except Exception:
-                    record[k] = json.dumps({"raw": v}, ensure_ascii=False)
+                    record[k] = json.dumps({"raw": v}, ensure_ascii=False, default=default_serializer)
             else:
-                record[k] = json.dumps({"value": v}, ensure_ascii=False)
+                record[k] = json.dumps({"value": v}, ensure_ascii=False, default=default_serializer)
 
         # --- columns: debe ser lista (postgres array de texto) ---
         elif k == "columns":
@@ -73,7 +81,11 @@ def log_query_attempt(data: Dict[str, Any]) -> Optional[int]:
 
         # --- Manejo normal para otros campos ---
         else:
-            record[k] = v
+            # Si el valor es Decimal o tiene Decimals anidados, serialízalo
+            if isinstance(v, Decimal):
+                record[k] = float(v)
+            else:
+                record[k] = v
 
     # --- Asigna timestamps obligatorios si faltan ---
     now_utc = datetime.utcnow()
